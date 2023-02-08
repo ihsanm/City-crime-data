@@ -1,0 +1,16 @@
+/* Variables */
+:root {
+    --ff: Arial, Helvetica, sans-serif; /* The font family we decide to use */
+}
+
+body {
+    font-family: var(--ff);
+}
+
+h1 {
+    font-size: 1.8rem;
+}
+
+h2 {
+    font-size: 1.6rem
+}
