@@ -1,3 +1,6 @@
+/* Font import */
+@import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
+
 /* Variables */
 :root {
     --ff: Arial, Helvetica, sans-serif; /* The font family we decide to use */
@@ -5,12 +8,149 @@
 
 body {
     font-family: var(--ff);
+
 }
 
 h1 {
-    font-size: 1.8rem;
+    font-size: 2.5rem;
+    font-weight: normal;
+    text-transform: uppercase;
+    font-family: 'Oswald', sans-serif;
+    color: rgb(21, 21, 98)
 }
 
 h2 {
-    font-size: 1.6rem
+    font-size: 1.6rem;
+    margin-bottom: 0.6rem;
 }
+
+.jumbotron {
+    height: 10rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: aliceblue;
+    /* border-bottom: 1px solid gray; */
+    box-shadow: 1px 0px 5px grey;
+    margin-bottom: 2rem;
+    background-size: cover;
+    background-position: 50%;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.7), 
+        rgba(255, 255, 255, 0.95)),            
+        url("../images/bg-header1.jpg");
+}
+
+.app-container {
+    display: grid;
+    grid-template-columns: 2;
+    column-gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.search { 
+    grid-row: span 3;
+}
+
+.search-fields {
+    padding: 0.4rem 0.7rem;
+    border-radius: 100vmax;
+    border: 1px solid rgba(0, 0, 0, 0.326);
+    display: flex;
+    column-gap: 0.5rem;
+    background-color: rgba(243, 243, 243, 0.4);
+}
+
+.city-input {
+    border: 0;
+    outline: none;
+    padding: 0.3rem 0.5rem;
+    background: transparent;
+}
+
+#submit {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.326);
+    color: white;
+    border-radius: 50%;
+    padding: 0.4rem;
+    border: 0;
+    outline: none;
+    height: 2rem;
+    width: 2rem;
+    opacity: 0.7;
+    transition: opacity 250ms linear;
+}
+
+#submit:hover {
+    opacity: 1;
+}
+
+#search-history-list {
+    list-style: none;
+    padding: 0 0.5rem;
+}
+
+#search-history-list li {
+    cursor: pointer;
+    padding: 0.6rem 0.5rem;
+    background-color: rgba(236, 246, 255, 0);
+    transition: all 250ms ease;
+    border-radius: 0.5rem;
+}
+
+#search-history-list li:hover {
+    background-color: rgba(236, 246, 255, 1);
+}
+
+.city-description {
+    grid-column: 2 / 3;
+    margin-bottom: 2rem;
+}
+
+.navigation {
+    grid-column: 2 / 3;
+}
+
+#nav {
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#nav li {
+    cursor: pointer;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    padding: 1rem 0;
+    background-color: rgb(236, 246, 255);
+    border: 1px solid rgba(0, 0, 0, 0.326);
+    opacity: 0.6;
+    transition: opacity 250ms linear;
+}
+
+#nav li:not(:last-child) { 
+    border-right: 0;
+}
+
+#nav li.active, #nav li:hover {
+    opacity: 1;
+}
+
+.crime-data {
+    grid-column: 2 / 3;
+    border: 1px solid rgba(0, 0, 0, 0.326);
+    border-top: 0;
+}
+
+#crime-graph {
+    margin: 1rem;
+    height: 400px;
+    margin: 2rem auto;
+}
+
+
