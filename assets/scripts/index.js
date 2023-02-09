@@ -100,23 +100,51 @@ function cityapi(cityname){
     }).then(function(response){
         console.log(response);
     });
-};
+}
 
+// gets city name from text input and puts it in a variable and put into localStorage
+var searchHistory = JSON.parse(localStorage.getItem("search")) || [];
+unique(searchHistory);
 
-
-// gets city name from text input and puts it in a variable
-
-$("#submit").on("click", function(){
-
+$("#submit").on("click", function (event) {
+  event.preventDefault();
   var cityname = $("#city-input").val().trim();
-
-  var historycity = $("<li>").text(cityname);
-  $("#search-history-list").append(historycity);
+  searchHistory.push(cityname);
+  localStorage.setItem("search", JSON.stringify(searchHistory));
+  renderhistoryLi();
 
   console.log(cityname);
-
   cityapi(cityname);
 });
+
+function renderhistoryLi() {
+    $("#search-history-list").empty();
+    for (var i = 0; i < searchHistory.length; i++) {
+      var historyItem = $("<li>");
+      historyItem.addClass("li-button");
+      historyItem.attr("data-name", searchHistory[i]);
+      historyItem.text(searchHistory[i]);
+      $("#search-history-list").append(historyItem);
+    }
+  }
+  
+  $(document).on("click", ".li-button", function () {
+    var historyItem = $(this).attr("data-name");
+    cityapi(historyItem);
+  });
+  
+  function unique(arr) {
+    for (var i = 0; i < arr.length; i++) {
+      for (var j = i + 1; j < arr.length; j++) {
+        if (arr[i] == arr[j]) {
+          arr.splice(j, 1);
+          j--;
+        }
+      }
+    }
+    return arr;
+  }
+renderhistoryLi();
 
 // clears search history when clicked
 
