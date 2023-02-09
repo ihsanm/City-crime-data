@@ -70,10 +70,28 @@ function getCrimeData(location) {
 }
 getCrimeData(); // Testing
 
-//   function to get api data for wiki api
-function cityapi(){
+// mode change dark or light
+var city = $("#city-input").val().trim();
+var currentDate = moment().format("L");
+var APIKey = "33759846bc0f4ad6eea2a8a5065678b2";
+var queryURL =
+  "https://api.openweathermap.org/data/2.5/weather?q=London" +
+  
+  "&appid=" +
+  APIKey;
+$.ajax({
+  url: queryURL,
+  method: "GET",
+}).then(function (response) {
+  console.log(response);
+  var latEl=response.coord.lat;
+  var lonEL=response.coord.lon;
+  console.log(latEl,lonEL);
+});
 
-    var cityname = "birmingham";
+//   function to get api data for city api
+
+function cityapi(cityname){
 
     $.ajax({
         url: "https://api.api-ninjas.com/v1/city?name=" + cityname,
@@ -84,4 +102,15 @@ function cityapi(){
     });
 };
 
-cityapi();
+
+
+// gets city name from text input and puts it in a variable
+
+$("#submit").on("click", function(){
+
+    var cityname = $("#city-input").val().trim();
+
+    console.log(cityname);
+
+    cityapi(cityname);
+});
