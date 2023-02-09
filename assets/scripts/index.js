@@ -32,3 +32,6 @@ function updateGraph(data) {
   updateGraph();
 
   document.querySelector("#nav").addEventListener("click", ()=>updateGraph());
+
+  var maths = 1 + 4;
+  console.log(maths);
