@@ -91,6 +91,7 @@ h2 {
 #search-history-list {
     list-style: none;
     padding: 0 0.5rem;
+    margin-top: 0;
 }
 
 #search-history-list li {
@@ -154,4 +155,22 @@ h2 {
     margin: 2rem auto;
 }
 
+#clear-history {
+    display: block;
+    margin: 0.7rem auto 0.5rem;
+    background-color: transparent;
+    border: 1px solid rgb(254, 51, 51);
+    color: red;
+    padding: 0.5rem 1rem;
+    border-radius: 100vmax;
+    transition: all 300ms ease;
+}
 
+#clear-history > svg {
+    transform: translateY(2px);
+}
+
+#clear-history:hover { 
+    background-color:rgb(254, 51, 51);
+    color: white;
+}
