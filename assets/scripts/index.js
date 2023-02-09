@@ -40,4 +40,5 @@ function updateGraph(data) {
   document.querySelector("#submit").addEventListener("click", search);
 
   var maths = 1 + 4;
-  console.log(maths);
+  console.log("maths");
+  console.log("hi");
