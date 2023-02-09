@@ -57,11 +57,10 @@ $.ajax({
   var lonEL=response.coord.lon;
   console.log(latEl,lonEL);
 });
+
 //   function to get api data for wiki api
 
-function cityapi(){
-
-    var cityname = "birmingham";
+function cityapi(cityname){
 
     $.ajax({
         url: "https://api.api-ninjas.com/v1/city?name=" + cityname,
@@ -72,4 +71,15 @@ function cityapi(){
     });
 };
 
-cityapi();
+
+
+// gets city name from text input and puts it in a variable
+
+$("#submit").on("click", function(){
+
+    var cityname = $("#city-input").val().trim();
+
+    console.log(cityname);
+
+    cityapi(cityname);
+});
