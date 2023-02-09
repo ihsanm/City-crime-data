@@ -1,5 +1,5 @@
-(function() {
-    const data = [
+function updateGraph(data) {
+    data = data || [
       { category: "Crime 1", count: 10 },
       { category: "Crime 2", count: 20 },
       { category: "Crime 3", count: 15 },
@@ -36,4 +36,6 @@
         }
       }
     );
-  })();
+  }
+
+  updateGraph();

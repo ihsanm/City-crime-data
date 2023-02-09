@@ -44,6 +44,7 @@ h2 {
 .app-container {
     display: grid;
     grid-template-columns: 2;
+    grid-template-rows: auto 3rem auto;
     column-gap: 2rem;
     max-width: 1000px;
     margin: 0 auto;
