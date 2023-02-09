@@ -59,16 +59,17 @@ $.ajax({
 });
 //   function to get api data for wiki api
 
-function wikiapi(){
+function cityapi(){
 
     var cityname = "birmingham";
 
     $.ajax({
         url: "https://api.api-ninjas.com/v1/city?name=" + cityname,
-        method:"GET"
+        method:"GET",
+        headers: { 'X-Api-Key': 'go1NeuJz94QeGftEPbnsgg==hvklAeK6cSwQ06Ti'}
     }).then(function(response){
         console.log(response);
     });
 };
 
-wikiapi();
+cityapi();
