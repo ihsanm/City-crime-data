@@ -39,6 +39,37 @@ updateGraph();
 document.querySelector("#nav").addEventListener("click", () => updateGraph());
 document.querySelector("#submit").addEventListener("click", search);
 
+function getGeoData() {
+    // mode change dark or light
+    var city = $("#city-input").val().trim();
+    // var currentDate = moment().format("L");
+    var APIKey = "33759846bc0f4ad6eea2a8a5065678b2";
+    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIKey;
+    $.ajax({
+        url: queryURL,
+        method: "GET",
+    }).then(function (response) {
+        console.log(response);
+        var latEl=response.coord.lat;
+        var lonEL=response.coord.lon;
+        console.log(latEl,lonEL);
+        getCrimeData({lat: latEl, lon:El });
+    });
+}
+
+// Function that accepts an object containing a latitude and longitude
+// in the format obj.lat and obj.lon
+function getCrimeData(location) {
+    location = location || { lat: 52.61650648552111, lon: -1.675799049634001 }
+    let url = `https://data.police.uk/api/crimes-street/all-crime?lat=${location.lat}&lng=${location.lon}` //&date=2017-01
+    fetch(url)
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+    });
+}
+getCrimeData(); // Testing
+
 // mode change dark or light
 var city = $("#city-input").val().trim();
 var currentDate = moment().format("L");
