@@ -41,3 +41,18 @@ function updateGraph(data) {
 
   var maths = 1 + 4;
   console.log(maths);
+
+  const settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": "https://jgentes-crime-data-v1.p.rapidapi.com/crime?startdate=9%2F19%2F2015&enddate=9%2F25%2F2015&long=-122.5076392&lat=37.757815",
+    "method": "GET",
+    "headers": {
+        "X-RapidAPI-Key": "b6efa07087mshd599e08668966b6p19694fjsnd4d806b5dc09",
+        "X-RapidAPI-Host": "jgentes-Crime-Data-v1.p.rapidapi.com"
+    }
+};
+
+$.ajax(settings).done(function (response) {
+    console.log(response);
+});
