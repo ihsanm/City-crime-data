@@ -89,7 +89,7 @@ $.ajax({
   console.log(latEl,lonEL);
 });
 
-//   function to get api data for wiki api
+//   function to get api data for city api
 
 function cityapi(cityname){
 
