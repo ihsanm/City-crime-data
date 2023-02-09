@@ -39,4 +39,16 @@ function updateGraph(data) {
   document.querySelector("#nav").addEventListener("click", ()=>updateGraph());
   document.querySelector("#submit").addEventListener("click", search);
 
+//   function to get api data for wiki api
 
+function wikiapi(){
+
+    $.ajax({
+        url: "https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&generator=search&gsrnamespace=0&gsrlimit=5&gsrsearch='New_England_Patriots'",
+        method:"GET"
+    }).then(function(response){
+        console.log(response);
+    });
+};
+
+wikiapi();
