@@ -108,9 +108,19 @@ function cityapi(cityname){
 
 $("#submit").on("click", function(){
 
-    var cityname = $("#city-input").val().trim();
+  var cityname = $("#city-input").val().trim();
 
-    console.log(cityname);
+  var historycity = $("<li>").text(cityname);
+  $("#search-history-list").append(historycity);
 
-    cityapi(cityname);
+  console.log(cityname);
+
+  cityapi(cityname);
 });
+
+// clears search history when clicked
+
+$("#clear-history").on("click", function(){
+
+  $("#search-history-list").empty()
+})
