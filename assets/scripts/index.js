@@ -29,6 +29,12 @@ function updateGraph(data) {
         });
   }
 
+  function search(e) {
+    e.preventDefault();
+    alert(document.querySelector("#city-input").value)
+  }
+
   updateGraph();
 
   document.querySelector("#nav").addEventListener("click", ()=>updateGraph());
+  document.querySelector("#submit").addEventListener("click", search);
