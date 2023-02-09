@@ -38,3 +38,6 @@ function updateGraph(data) {
 
   document.querySelector("#nav").addEventListener("click", ()=>updateGraph());
   document.querySelector("#submit").addEventListener("click", search);
+
+  var maths = 1 + 4;
+  console.log(maths);
