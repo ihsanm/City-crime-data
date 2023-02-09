@@ -43,8 +43,10 @@ function updateGraph(data) {
 
 function wikiapi(){
 
+    var cityname = "birmingham";
+
     $.ajax({
-        url: "https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&generator=search&gsrnamespace=0&gsrlimit=5&gsrsearch='New_England_Patriots'",
+        url: "https://api.api-ninjas.com/v1/city?name=" + cityname,
         method:"GET"
     }).then(function(response){
         console.log(response);
