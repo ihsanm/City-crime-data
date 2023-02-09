@@ -41,3 +41,4 @@ function updateGraph(data) {
 
   var maths = 1 + 4;
   console.log(maths);
+  console.log("hello world")
