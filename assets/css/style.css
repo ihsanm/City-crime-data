@@ -138,7 +138,7 @@ h2 {
     border-right: 0;
 }
 
-#nav li.active, #nav li:hover {
+#nav li.active, #nav li, .clearbutton:hover {
     opacity: 1;
 }
 
@@ -152,6 +152,24 @@ h2 {
     margin: 1rem;
     height: 400px;
     margin: 2rem auto;
+}
+
+.clearbutton{
+    margin-top: 20px;
+    text-align: center;
+    display: table-cell;
+      vertical-align: middle;
+    margin-left: 10px;
+    width: 160px;
+    background-color: rgb(194, 192, 192);
+    border: 0px;
+    height: 30px;
+    padding: 0.4rem 0.7rem;
+    border-radius: 100vmax;
+}
+
+.clearbutton:hover{
+    background-color:gainsboro;
 }
 
 
