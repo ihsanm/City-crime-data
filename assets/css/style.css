@@ -168,12 +168,24 @@ h2 {
     border: 1px solid rgba(0, 0, 0, 0.326);
     border-top: 0;
     background-color: white;
+    display: grid;
+    grid-template-areas: "a";
+}
+
+#graph-container, #table-container, #blank-container {
+    grid-area: a;
+    visibility: hidden;
+}
+
+.crime-data .active {
+    visibility: visible !important;
 }
 
 #crime-graph {
-    margin: 1rem;
-    height: 400px;
-    margin: 2rem auto;
+    display: block;
+    width: 500px;
+    height: 500px;
+    margin: 1rem auto;
 }
 
 #clear-history {
@@ -250,3 +262,5 @@ h2 {
     top: 1%;
     right: 1%;
 }
+
+

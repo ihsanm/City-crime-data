@@ -36,10 +36,6 @@
                     <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><g><path fill="none" d="M0 0h24v24H0z"></path><path d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3zm1 2H6v12h12V8zm-9 3h2v6H9v-6zm4 0h2v6h-2v-6zM9 4v2h6V4H9z"></path></g></svg>
                 </button>
                 <ul id="search-history-list">
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                    <li></li>
                 </ul>
             </div>
         </div>
@@ -49,15 +45,29 @@
         </div>
         <div class="navigation">
             <ul id="nav">
-                <li>Nav 1</li>
-                <li>Nav 2</li>
-                <li>Nav 3</li>
-                <li>Nav 4</li>
+                <li id="nav1" data-toggles="graph-container" data-type="radar">Radar</li>
+                <li id="nav2" data-toggles="graph-container" data-type="bar">Bar</li>
+                <li id="nav3" data-toggles="table-container">Table</li>
+                <li id="nav4" data-toggles="blank-container">Nav 4</li>
             </ul>
         </div>
         <div class="crime-data" id="crime-data">
-            <div class="graph-container">
-                <canvas id="crime-graph" class="graph"></canvas>
+            <div id="graph-container" class="active">
+                <canvas id="crime-graph" class="graph" data-type="radar"></canvas>
+            </div>
+            <div id="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Category</td>
+                            <td>Number</td>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="blank-container">
+                <canvas id="crime-table" class="table"></canvas>
             </div>
         </div>
     </div>

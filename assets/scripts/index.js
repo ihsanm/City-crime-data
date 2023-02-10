@@ -48,23 +48,16 @@ form.addEventListener("submit", (event) => {
 let chart;
 
 function updateGraph(data) {
+  data = data || crimeData;
+  if (data.length === 0) return;
   let label = "Crime frequency";
-
-  data = data || [
-    { category: "Crime 1", count: Math.floor(Math.random() * 36) + 5 },
-    { category: "Crime 2", count: Math.floor(Math.random() * 26) + 5 },
-    { category: "Crime 3", count: Math.floor(Math.random() * 26) + 5 },
-    { category: "Crime 4", count: Math.floor(Math.random() * 26) + 5 },
-    { category: "Crime 5", count: Math.floor(Math.random() * 26) + 5 },
-    { category: "Crime 6", count: Math.floor(Math.random() * 26) + 5 },
-    { category: "Crime 7", count: Math.floor(Math.random() * 26) + 5 },
-  ];
-
+  type = document.getElementById("crime-graph").dataset.type;
+  if (type === "radar") data = data.slice(0,6);
   if (chart) {
     chart.destroy();
   }
   chart = new Chart(document.getElementById("crime-graph"), {
-    type: "radar",
+    type: type,
     data: {
       labels: data.map((row) => row.category),
       datasets: [
@@ -77,46 +70,84 @@ function updateGraph(data) {
   });
 }
 
-function search(e) {
-  e.preventDefault();
-  alert(document.querySelector("#city-input").value);
-}
-
-updateGraph();
-
 document.querySelector("#nav").addEventListener("click", () => updateGraph());
-document.querySelector("#submit").addEventListener("click", search);
 
-function getGeoData() {
-    // mode change dark or light
-    const city = $("#city-input").val().trim();
+function getGeoData(city) {
     // var currentDate = moment().format("L");
     var APIKey = "33759846bc0f4ad6eea2a8a5065678b2";
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIKey;
+    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + ", GB&appid=" + APIKey;
     $.ajax({
         url: queryURL,
         method: "GET",
     }).then(function (response) {
         console.log(response);
-        var latEl=response.coord.lat;
-        var lonEL=response.coord.lon;
-        console.log(latEl,lonEL);
-        getCrimeData({lat: latEl, lon:El });
+        var latitude=response.coord.lat;
+        var longitude=response.coord.lon;
+        getCrimeData({latitude,longitude})
     });
 }
 
 // Function that accepts an object containing a latitude and longitude
 // in the format obj.lat and obj.lon
+let crimeData = [];
 function getCrimeData(location) {
-    location = location || { lat: 52.61650648552111, lon: -1.675799049634001 }
-    let url = `https://data.police.uk/api/crimes-street/all-crime?lat=${location.lat}&lng=${location.lon}` //&date=2017-01
+    // console.log(location)
+    if (!location || !location.latitude) return;
+    crimeData = [];
+    let url = `https://data.police.uk/api/crimes-street/all-crime?lat=${location.latitude}&lng=${location.longitude}` //&date=2017-01
     fetch(url)
     .then(res => res.json())
     .then(data => {
-        console.log(data);
+        obj = {};
+        data.forEach(item => {
+          obj[item.category] = (obj[item.category] || 0) + 1;
+        });
+        for (let category in obj) {
+          words = category.split("-");
+          let cat = "";
+          words.forEach(word => {
+            cat += word.charAt(0).toUpperCase() + word.slice(1) + " ";
+          });
+          crimeData.push({category: cat.trim(), count: obj[category]});
+        }
+        crimeData.sort((a, b) => b.count - a.count);
+        updateGraph();
+        updateTable();
     });
 }
-getCrimeData(); // Testing
+
+function updateTable(data) {
+  data = data || crimeData;
+  tbl = document.querySelector("#table-container tbody");
+  tbl.textContent = "";
+  data.forEach(item => {
+    const rw = document.createElement("tr");
+    rw.appendChild(document.createElement("td")).textContent = item.category;
+    rw.appendChild(document.createElement("td")).textContent = item.count;
+    tbl.appendChild(rw);
+  });
+}
+
+document.querySelector("#nav").addEventListener("click", navClick);
+
+function navClick(e) {
+  if (e.target.nodeName === "LI") {
+    const id = e.target.dataset.toggles;
+    const target = document.getElementById(id);
+    const type = e.target.dataset.type || "radar";
+    const cht = document.getElementById("crime-graph");
+    if (cht.dataset.type !== type) {
+      cht.dataset.type = type;
+      updateGraph();
+    } 
+    if (!target) return;
+    const panes = document.getElementById("crime-data");
+    for (let pane of panes.children) {
+      pane.classList.remove("active");
+    }
+    target.classList.add("active");
+  }
+}
 
 //   function to get api data for city api
 function cityapi(cityname){
@@ -138,12 +169,12 @@ $("#submit").on("click", function (event) {
   event.preventDefault();
   var cityname = $("#city-input").val().trim();
   if (cityname) {
-    searchHistory.push(cityname);
+    searchHistory.unshift(cityname);
+    if (searchHistory.length > 10) searchHistory.pop();
     localStorage.setItem("search", JSON.stringify(searchHistory));
     renderhistoryLi();
-
-    console.log(cityname);
     cityapi(cityname);
+    getGeoData(cityname);
   } else {
     alert("City required");
   }
@@ -163,6 +194,7 @@ function renderhistoryLi() {
   $(document).on("click", ".li-button", function () {
     var historyItem = $(this).attr("data-name");
     cityapi(historyItem);
+    getGeoData(historyItem);
   });
   
   function unique(arr) {
@@ -200,13 +232,20 @@ function toggleTheme(theme) {
         theme = "light";
     } else if (theme === "light") {
       light.checked = true;
-      dark.checked = false;
+      // dark.checked = false;
     } else if (theme === "dark") {
-      light.checked = false;
+      //light.checked = false;
       dark.checked = true;
+    } else { theme = ""; }
+    if (theme) {
+      document.body.classList.remove("light");
+      document.body.classList.remove("dark");
+      document.body.classList.add(theme);
     }
-    document.body.classList.remove("light");
-    document.body.classList.remove("dark");
-    document.body.classList.add(theme);
+
 }
 
+// Search on enter key
+$("#city-input").on("keypress", (e) => {
+  if (e.key === "Enter") $("#submit").click();
+})
