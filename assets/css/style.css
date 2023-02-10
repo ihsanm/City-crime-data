@@ -6,9 +6,31 @@
     --ff: Arial, Helvetica, sans-serif; /* The font family we decide to use */
 }
 
+.dark {
+    --bg-primary: #000;
+    --bg-danger: #fe3333;
+    --clr-primary: #fff;
+    --clr-secondary:#fff;
+    --clr-accent: #f5f5f5;
+    --clr-danger: #ff0000;
+    --gradient: linear-gradient(rgba(0, 0, 0, 0.95), rgba(123, 123, 123, 0.7));
+}
+
+.light {
+    --bg-primary: #fff;
+    --bg-danger: #fe3333;
+    --clr-primary: #000;
+    --clr-secondary:#808080;
+    --clr-accent: rgb(21, 21, 98);
+    --clr-danger: #ff0000;
+    --gradient: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.95));
+}
+
 body {
     font-family: var(--ff);
-
+    background-color: var(--bg-primary);
+    color: var(--clr-primary);
+    transition: background-color 1s ease, color 1s ease;
 }
 
 h1 {
@@ -16,7 +38,7 @@ h1 {
     font-weight: normal;
     text-transform: uppercase;
     font-family: 'Oswald', sans-serif;
-    color: rgb(21, 21, 98)
+    color: var(--clr-accent);
 }
 
 h2 {
@@ -31,20 +53,17 @@ h2 {
     justify-content: center;
     background-color: aliceblue;
     /* border-bottom: 1px solid gray; */
-    box-shadow: 1px 0px 5px grey;
+    box-shadow: 1px 0px 5px var(--clr-secondary);
     margin-bottom: 2rem;
     background-size: cover;
     background-position: 50%;
-    background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.7), 
-        rgba(255, 255, 255, 0.95)),            
-        url("../images/bg-header1.jpg");
+    background-image: var(--gradient), url("../images/bg-header1.jpg");
 }
 
 .app-container {
     display: grid;
     grid-template-columns: 2;
-    grid-template-rows: auto 3rem auto;
+    grid-template-rows: auto;
     column-gap: 2rem;
     max-width: 1000px;
     margin: 0 auto;
@@ -133,6 +152,7 @@ h2 {
     border: 1px solid rgba(0, 0, 0, 0.326);
     opacity: 0.6;
     transition: opacity 250ms linear;
+    color: black;
 }
 
 #nav li:not(:last-child) { 
@@ -147,6 +167,7 @@ h2 {
     grid-column: 2 / 3;
     border: 1px solid rgba(0, 0, 0, 0.326);
     border-top: 0;
+    background-color: white;
 }
 
 #crime-graph {
@@ -156,13 +177,14 @@ h2 {
 }
 
 #clear-history {
+    cursor: pointer;
     display: block;
     margin: 0.7rem auto 0.5rem;
     background-color: transparent;
-    border: 1px solid rgb(254, 51, 51);
-    color: red;
+    border: 1px solid var(--bg-danger);
+    color: var(--clr-danger);
     padding: 0.5rem 1rem;
-    border-radius: 100vmax;
+    border-radius: 0.3rem;
     transition: all 300ms ease;
 }
 
@@ -171,6 +193,60 @@ h2 {
 }
 
 #clear-history:hover { 
-    background-color:rgb(254, 51, 51);
+    background-color: var(--bg-danger);
     color: white;
+}
+
+.toggle {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    transition: opacity 200ms linear;
+}
+
+.toggle:hover {
+    opacity: 1;
+}
+
+.toggle label {
+    font-size: 1.4rem;
+    color: var(--clr-primary);
+    cursor: pointer;
+}
+
+.toggle input {
+    display: none;
+}
+
+.toggle-btn {
+    padding: 0.3rem;
+    border: 1.5px solid var(--clr-primary);
+    border-radius: 100vmax;
+    outline: none;
+    background-color: transparent;
+    width: 3.5rem;
+    height: 1.8rem;
+    cursor: pointer;
+}
+
+.toggle-btn::after {
+    content: "";
+    display: block;
+    height: 1rem;
+    width: 1rem;
+    background-color: var(--clr-primary);
+    border-radius: 50%;
+    margin-left: 1.75rem; /* Can't transition auto :( */
+    transition: margin 150ms linear;
+}
+
+.toggle-on:checked ~ .toggle-btn::after {
+    margin-left: 0;
+}
+
+#theme-toggle {
+    position: fixed;
+    scale: 0.7;
+    top: 1%;
+    right: 1%;
 }

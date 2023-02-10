@@ -1,4 +1,5 @@
 let chart;
+
 function updateGraph(data) {
   let label = "Crime frequency";
 
@@ -152,3 +153,21 @@ $("#clear-history").on("click", function(){
 
   $("#search-history-list").empty()
 })
+
+// Toggles theme when clicked
+$("#theme-toggle-btn").on("click", toggleTheme);
+
+// Toggles theme
+function toggleTheme() {
+    const light = document.querySelector("#light");
+    const dark = document.querySelector("#dark");
+    if (light.checked) {
+        dark.checked = true;
+        document.body.classList.remove("light")
+        document.body.classList.add("dark")
+    } else {
+        light.checked = true;
+        document.body.classList.remove("dark")
+        document.body.classList.add("light")
+    }
+}
