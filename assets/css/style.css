@@ -169,6 +169,7 @@ h2 {
     border: 1px solid rgba(0, 0, 0, 0.326);
     border-top: 0;
     background-color: white;
+    color: black;
     display: grid;
     grid-template-areas: "a";
 }
@@ -258,10 +259,57 @@ h2 {
 }
 
 #theme-toggle {
-    position: fixed;
+    position: absolute;
     scale: 0.7;
     top: 1%;
     right: 1%;
+}
+
+#alert * {
+    margin: 0;
+    padding: 0;
+}
+
+#alert {
+    background-color: whitesmoke;
+    padding: 1.8rem;
+    border: 1px solid rgb(170, 170, 170);
+    box-shadow: 0 0 5px rgba(128, 128, 128, 0.8);
+    width: 95%;
+    max-width: 300px;
+}
+
+#alert > div {
+    display: grid;
+    place-items: center;
+    gap: 1.8rem;
+}
+
+#alert svg { 
+    fill: red;
+    height: 3rem;
+    width: 3rem;
+}
+
+#alertMessage::first-letter {
+    text-transform: uppercase;
+}
+
+#alertBtn { 
+    background-color: blue;
+    color: white;
+    border: none;
+    padding: 0.5rem 2rem;
+    font-family: var(--ff);
+    font-size: 1rem;
+    border-radius: 0.3rem;
+    font-weight: 600;
+    opacity: 0.75;
+    transition: opacity 350ms ease;
+}
+
+#alertBtn:hover { 
+    opacity: 0.9;
 }
 
 @media screen and (max-width: 900px) {

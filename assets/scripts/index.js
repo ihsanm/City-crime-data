@@ -62,8 +62,8 @@ function updateGraph(data) {
 function getGeoData(city) {
     // var currentDate = moment().format("L");
     var APIKey = "33759846bc0f4ad6eea2a8a5065678b2";
-    // var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + ", GB&appid=" + APIKey;
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIKey;
+    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + ", GB&appid=" + APIKey;
+    // var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIKey;
     $.ajax({
         url: queryURL,
         method: "GET",
@@ -221,7 +221,7 @@ $("#submit").on("click", function (event) {
     cityapi(cityname);
     getGeoData(cityname);
   } else {
-    alert("City required");
+    showAlert("City required");
   }
 });
 
@@ -255,3 +255,17 @@ $(document).on("click", ".li-button", function () {
   cityapi(historyItem);
   getGeoData(historyItem);
 });
+
+// =============
+// Alert modal
+// =============
+
+// Closes modal
+document.querySelector("#alert").addEventListener("click", e => document.querySelector("#alert").close() );
+
+// Shows a modal alert
+function showAlert(message) {
+  if (!message || !message.trim()) { message = "Alert!" }
+  document.querySelector("#alertMessage").textContent = message;
+  document.querySelector("#alert").showModal();
+}
