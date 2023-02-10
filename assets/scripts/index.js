@@ -63,13 +63,11 @@ function getGeoData(city) {
     // var currentDate = moment().format("L");
     var APIKey = "33759846bc0f4ad6eea2a8a5065678b2";
     var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + ", GB&appid=" + APIKey;
-    // var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIKey;
     $.ajax({
         url: queryURL,
         method: "GET",
     }).then(function (response) {
-        console.log(response);
-        const location = {latitude: response.coord.lat,longitude: response.coord.lon};
+        const location = {city, latitude: response.coord.lat,longitude: response.coord.lon};
         getCrimeData(location);
         sunStatus(location);
     });
