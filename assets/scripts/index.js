@@ -63,13 +63,11 @@ function getGeoData(city) {
     // var currentDate = moment().format("L");
     var APIKey = "33759846bc0f4ad6eea2a8a5065678b2";
     var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + ", GB&appid=" + APIKey;
-    // var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIKey;
     $.ajax({
         url: queryURL,
         method: "GET",
     }).then(function (response) {
-        console.log(response);
-        const location = {latitude: response.coord.lat,longitude: response.coord.lon};
+        const location = {city, latitude: response.coord.lat,longitude: response.coord.lon};
         getCrimeData(location);
         sunStatus(location);
         getpoliceforce(location);
@@ -222,7 +220,15 @@ function toggleTheme(theme) {
     document.body.classList.remove("dark");
     document.body.classList.add(theme);
   }
+}
 
+function capitalize(str) {
+  if (!str) return;
+  str = str.toLowerCase();
+  words = str.includes(" ") ? str.split(" ") : [str];
+  str = "";
+  words.forEach(word => str += word.charAt(0).toUpperCase() + word.slice(1) + " ");
+  return str.trim();
 }
 
 // ================
@@ -235,14 +241,17 @@ document.querySelector("#nav").addEventListener("click", navClick);
 // Search for city on submit button click
 $("#submit").on("click", function (event) {
   event.preventDefault();
-  var cityname = $("#city-input").val().trim();
+  var input = $("#city-input");
+  var cityname = input.val().trim();
   if (cityname) {
+    cityname = capitalize(cityname);
     searchHistory.unshift(cityname);
     if (searchHistory.length > 10) searchHistory.pop();
     localStorage.setItem("search", JSON.stringify(searchHistory));
     renderhistoryLi();
     cityapi(cityname);
     getGeoData(cityname);
+    input.val("");
   } else {
     showAlert("City required");
   }
@@ -268,8 +277,8 @@ $("#theme-toggle").on("click", (e) => {
 });
 
 // Search on enter key
-$("#city-input").on("keypress", (e) => {
-  if (e.key === "Enter") $("#submit").click();
+document.getElementById("city-input").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") document.getElementById("submit").click();
 })
 
 // Updates data on search history item click
