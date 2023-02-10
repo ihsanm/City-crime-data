@@ -158,6 +158,8 @@ function cityapi(cityname){
         headers: { 'X-Api-Key': 'go1NeuJz94QeGftEPbnsgg==hvklAeK6cSwQ06Ti'}
     }).then(function(response){
         console.log(response);
+        $(".heading").text(response[0].name);
+        $(".content").text("Country : " + response[0].country + "  Population : " + (response[0].population).toLocaleString("en-US"));
     });
 }
 
