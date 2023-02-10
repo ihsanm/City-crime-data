@@ -214,6 +214,7 @@ renderhistoryLi();
 $("#clear-history").on("click", function(){
 
   $("#search-history-list").empty()
+  localStorage.removeItem("search");
   searchHistory = [];
 })
 
