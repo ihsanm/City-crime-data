@@ -7,13 +7,14 @@
 }
 
 .dark {
-    --bg-primary: #000;
+    --bg-primary: #000000e6;
     --bg-danger: #fe3333;
-    --clr-primary: #fff;
-    --clr-secondary:#fff;
+    --clr-primary: #ffffffe1;
+    --clr-secondary:#ffffffef;
     --clr-accent: #f5f5f5;
     --clr-danger: #ff0000;
-    --gradient: linear-gradient(rgba(0, 0, 0, 0.95), rgba(123, 123, 123, 0.7));
+    --clr-hover: rgb(108, 108, 255);
+    --gradient: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8));
 }
 
 .light {
@@ -23,6 +24,7 @@
     --clr-secondary:#808080;
     --clr-accent: rgb(21, 21, 98);
     --clr-danger: #ff0000;
+    --clr-hover: blue;
     --gradient: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.95));
 }
 
@@ -53,7 +55,7 @@ h2 {
     justify-content: center;
     background-color: aliceblue;
     /* border-bottom: 1px solid gray; */
-    box-shadow: 1px 0px 5px var(--clr-secondary);
+    box-shadow: 1px 0px 2px var(--clr-secondary);
     margin-bottom: 2rem;
     background-size: cover;
     background-position: 50%;
@@ -119,11 +121,11 @@ h2 {
     padding: 0.6rem 0.5rem;
     background-color: rgba(236, 246, 255, 0);
     transition: all 250ms ease;
-    border-radius: 0.5rem;
+    /* border-radius: 0.5rem; */
 }
 
 #search-history-list li:hover {
-    background-color: rgba(236, 246, 255, 1);
+    color: var(--clr-hover);
 }
 
 .city-description {
