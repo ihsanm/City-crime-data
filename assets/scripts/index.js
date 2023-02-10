@@ -37,7 +37,7 @@ function sunStatus(location) {
 // updates crime graph
 function updateGraph(data) {
   data = data || crimeData;
-  if (data.length === 0) return;
+  // if (data.length === 0) return;
   let label = "Crime frequency";
   type = document.getElementById("crime-graph").dataset.type;
   if (type === "radar") data = data.slice(0,6);
