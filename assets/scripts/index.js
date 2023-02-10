@@ -71,27 +71,7 @@ function getCrimeData(location) {
 }
 getCrimeData(); // Testing
 
-// mode change dark or light
-var city = $("#city-input").val().trim();
-var currentDate = moment().format("L");
-var APIKey = "33759846bc0f4ad6eea2a8a5065678b2";
-var queryURL =
-  "https://api.openweathermap.org/data/2.5/weather?q=London" +
-  
-  "&appid=" +
-  APIKey;
-$.ajax({
-  url: queryURL,
-  method: "GET",
-}).then(function (response) {
-  console.log(response);
-  var latEl=response.coord.lat;
-  var lonEL=response.coord.lon;
-  console.log(latEl,lonEL);
-});
-
 //   function to get api data for city api
-
 function cityapi(cityname){
 
     $.ajax({
@@ -110,12 +90,16 @@ unique(searchHistory);
 $("#submit").on("click", function (event) {
   event.preventDefault();
   var cityname = $("#city-input").val().trim();
-  searchHistory.push(cityname);
-  localStorage.setItem("search", JSON.stringify(searchHistory));
-  renderhistoryLi();
+  if (cityname) {
+    searchHistory.push(cityname);
+    localStorage.setItem("search", JSON.stringify(searchHistory));
+    renderhistoryLi();
 
-  console.log(cityname);
-  cityapi(cityname);
+    console.log(cityname);
+    cityapi(cityname);
+  } else {
+    alert("City required");
+  }
 });
 
 function renderhistoryLi() {
@@ -148,26 +132,33 @@ function renderhistoryLi() {
 renderhistoryLi();
 
 // clears search history when clicked
-
 $("#clear-history").on("click", function(){
 
   $("#search-history-list").empty()
+  searchHistory = [];
 })
 
 // Toggles theme when clicked
-$("#theme-toggle-btn").on("click", toggleTheme);
+$("#theme-toggle-btn").on("click", ()=>toggleTheme());
 
 // Toggles theme
-function toggleTheme() {
+function toggleTheme(theme) {
     const light = document.querySelector("#light");
     const dark = document.querySelector("#dark");
-    if (light.checked) {
+    if (light.checked && !theme) {
         dark.checked = true;
-        document.body.classList.remove("light")
-        document.body.classList.add("dark")
-    } else {
+        theme = "dark";
+    } else if (dark.checked && !theme) {
         light.checked = true;
-        document.body.classList.remove("dark")
-        document.body.classList.add("light")
+        theme = "light";
+    } else if (theme === "light") {
+      light.checked = true;
+      dark.checked = false;
+    } else if (theme === "dark") {
+      light.checked = false;
+      dark.checked = true;
     }
+    document.body.classList.remove("light");
+    document.body.classList.remove("dark");
+    document.body.classList.add(theme);
 }
