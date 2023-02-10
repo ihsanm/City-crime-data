@@ -6,6 +6,7 @@ let crimeData = [];
 var searchHistory = JSON.parse(localStorage.getItem("search")) || [];
 unique(searchHistory);
 renderhistoryLi();
+getIPLocation();
 
 // gets sunrise/sunset for location
 function sunStatus(location) {
@@ -229,6 +230,17 @@ function capitalize(str) {
   str = "";
   words.forEach(word => str += word.charAt(0).toUpperCase() + word.slice(1) + " ");
   return str.trim();
+}
+
+function getIPLocation() {
+  fetch("http://ip-api.com/json/").then(r => r.json()).then(data => {
+    console.log(data);
+    const location = { city: data.city, latitude: data.lat, longitude: data.lon };
+    getCrimeData(location);
+    getpoliceforce(location);
+    sunStatus(location);
+    $(".heading").text(data.city);
+  })
 }
 
 // ================
