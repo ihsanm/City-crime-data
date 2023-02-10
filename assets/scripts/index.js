@@ -72,9 +72,32 @@ function getGeoData(city) {
         const location = {latitude: response.coord.lat,longitude: response.coord.lon};
         getCrimeData(location);
         sunStatus(location);
+        getpoliceforce(location);
     });
 }
 
+// 2 functions to get the police force from lat and long and the other to give details about the police force
+function getpoliceforce(location){
+	$.ajax({
+        url: "https://data.police.uk/api/locate-neighbourhood?q="+location.latitude+","+location.longitude,
+        method: "GET",
+    }).then(function (response) {
+        console.log(response);
+        const policeforcetext = response.force;
+       policeforce(policeforcetext);
+    });
+}
+
+function policeforce(policeforcetext){
+	$.ajax({
+        url: "https://data.police.uk/api/forces/" + policeforcetext,
+        method: "GET",
+    }).then(function (response) {
+        console.log(response);
+        
+       
+    });
+}
 // Function that accepts an object containing a latitude and longitude
 // in the format obj.lat and obj.lon
 function getCrimeData(location) {
