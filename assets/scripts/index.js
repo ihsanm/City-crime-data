@@ -1,3 +1,50 @@
+const SUNRISE_SUNSET_API_KEY = "your_sunrise_sunset_api_key_here";
+const OPEN_WEATHER_MAP_API_KEY = "3a95d1ed9bf689469735b199ebeae609";
+
+const form = document.querySelector("form");
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const city = document.querySelector("input[name=city]").value;
+  const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${OPEN_WEATHER_MAP_API_KEY}`;
+
+  fetch(weatherUrl)
+    .then((response) => response.json())
+    .then((data) => {
+      const latitude = data.coord.lat;
+      const longitude = data.coord.lon;
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+
+      const sunStatusUrl = `https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${year}-${month}-${day}&formatted=0&apikey=${SUNRISE_SUNSET_API_KEY}`;
+
+      fetch(sunStatusUrl)
+        .then((response) => response.json())
+        .then((data) => {
+          const sunrise = new Date(data.results.sunrise);
+          const sunset = new Date(data.results.sunset);
+          const currentTime = new Date();
+
+          if (currentTime >= sunrise && currentTime <= sunset) {
+            document.body.style.backgroundColor = "#FFFDD0";
+          } else {
+            document.body.style.backgroundColor = "grey";
+          }
+        })
+        .catch((error) => console.error(error));
+    })
+    .catch((error) => console.error(error));
+});
+
+
+
+
+
+
+
+
 let chart;
 
 function updateGraph(data) {
@@ -195,6 +242,7 @@ function toggleTheme(theme) {
       document.body.classList.remove("dark");
       document.body.classList.add(theme);
     }
+
 }
 
 // Search on enter key
