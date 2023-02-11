@@ -1,38 +1,18 @@
 /* Font import */
 @import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
 
-/* Variables */
-:root {
-    --ff: Arial, Helvetica, sans-serif; /* The font family we decide to use */
+.light {
+    --bg-theme: black;
+    --clr-theme: black;
 }
 
 .dark {
-    --bg-primary: #000000e6;
-    --bg-danger: #fe3333;
-    --clr-primary: #ffffffe1;
-    --clr-secondary:#ffffffef;
-    --clr-accent: #f5f5f5;
-    --clr-danger: #ff0000;
-    --clr-hover: rgb(108, 108, 255);
-    --gradient: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8));
-}
-
-.light {
-    --bg-primary: #fff;
-    --bg-danger: #fe3333;
-    --clr-primary: #000;
-    --clr-secondary:#808080;
-    --clr-accent: rgb(21, 21, 98);
-    --clr-danger: #ff0000;
-    --clr-hover: blue;
-    --gradient: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.95));
+    --bg-theme: white;
+    --clr-theme: white;
 }
 
 body {
-    font-family: var(--ff);
-    background-color: var(--bg-primary);
-    color: var(--clr-primary);
-    transition: background-color 1s ease, color 1s ease;
+    transition: all 1s ease;
 }
 
 h1 {
@@ -40,177 +20,29 @@ h1 {
     font-weight: normal;
     text-transform: uppercase;
     font-family: 'Oswald', sans-serif;
-    color: var(--clr-accent);
 }
 
-h2 {
-    font-size: 1.6rem;
-    margin-bottom: 0.6rem;
-}
-
-.jumbotron {
-    height: 10rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: aliceblue;
-    /* border-bottom: 1px solid gray; */
-    box-shadow: 1px 0px 2px var(--clr-secondary);
-    margin-bottom: 2rem;
+#header {
+    /* background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 1)), url("../images/bg-header1.jpg"); */
     background-size: cover;
     background-position: 50%;
-    background-image: var(--gradient), url("../images/bg-header1.jpg");
+    border-radius: 0 !important;
 }
 
-.app-container {
-    display: grid;
-    grid-template-columns: 257px auto;
-    grid-template-areas: "a b" "a c" "a d";
-    column-gap: 2rem;
-    max-width: 1000px;
-    margin: 0 auto;
+.light #header {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 1)), url("../images/bg-header1.jpg");
 }
 
-.search { 
-    grid-area: a;
+.dark #header {
+    background-image: linear-gradient(rgba(15, 37, 55, 0.6), rgba(15, 37, 55, 1)), url("../images/bg-header2.jpg");
 }
 
-.search-fields {
-    padding: 0.4rem 0.7rem;
-    border-radius: 100vmax;
-    border: 1px solid rgba(0, 0, 0, 0.326);
-    display: flex;
-    justify-content: space-between;
-    column-gap: 0.5rem;
-    background-color: rgba(243, 243, 243, 0.4);
+#radar-graph {
+    max-height: 500px;
 }
 
-.city-input {
-    border: 0;
-    outline: none;
-    padding: 0.3rem 0.5rem;
-    background: transparent;
-}
-
-#submit {
-    cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.326);
-    color: white;
-    border-radius: 50%;
-    padding: 0.4rem;
-    border: 0;
-    outline: none;
-    height: 2rem;
-    width: 2rem;
-    opacity: 0.7;
-    transition: opacity 250ms linear;
-}
-
-#submit:hover {
-    opacity: 1;
-}
-
-#search-history-list {
-    list-style: none;
-    padding: 0 0.5rem;
-    margin-top: 0;
-}
-
-#search-history-list li {
-    cursor: pointer;
-    padding: 0.6rem 0.5rem;
-    background-color: rgba(236, 246, 255, 0);
-    transition: all 250ms ease;
-    /* border-radius: 0.5rem; */
-}
-
-#search-history-list li:hover {
-    color: var(--clr-hover);
-}
-
-.city-description {
-    grid-area: b;
-    margin-bottom: 2rem;
-}
-
-.navigation {
-    grid-area: c;
-}
-
-#nav {
-    display: flex;
-    justify-content: space-between;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-#nav li {
-    cursor: pointer;
-    display: inline-block;
-    width: 100%;
-    text-align: center;
-    padding: 1rem 0;
-    background-color: rgb(236, 246, 255);
-    border: 1px solid rgba(0, 0, 0, 0.326);
-    opacity: 0.6;
-    transition: opacity 250ms linear;
-    color: black;
-}
-
-#nav li:not(:last-child) { 
-    border-right: 0;
-}
-
-#nav li.active, #nav li:hover {
-    opacity: 1;
-}
-
-.crime-data {
-    grid-area: d;
-    border: 1px solid rgba(0, 0, 0, 0.326);
-    border-top: 0;
-    background-color: white;
-    color: black;
-    display: grid;
-    grid-template-areas: "a";
-}
-
-#graph-container, #table-container, #blank-container {
-    grid-area: a;
+.hidden {
     visibility: hidden;
-}
-
-.crime-data .active {
-    visibility: visible !important;
-}
-
-#crime-graph {
-    display: block;
-    width: 500px;
-    height: 500px;
-    margin: 1rem auto;
-}
-
-#clear-history {
-    cursor: pointer;
-    display: block;
-    margin: 0.7rem auto 0.5rem;
-    background-color: transparent;
-    border: 1px solid var(--bg-danger);
-    color: var(--clr-danger);
-    padding: 0.5rem 1rem;
-    border-radius: 0.3rem;
-    transition: all 300ms ease;
-}
-
-#clear-history > svg {
-    transform: translateY(2px);
-}
-
-#clear-history:hover { 
-    background-color: var(--bg-danger);
-    color: white;
 }
 
 .toggle {
@@ -218,6 +50,7 @@ h2 {
     gap: 0.5rem;
     align-items: center;
     transition: opacity 200ms linear;
+    opacity: 0.6;
 }
 
 .toggle:hover {
@@ -226,8 +59,9 @@ h2 {
 
 .toggle label {
     font-size: 1.4rem;
-    color: var(--clr-primary);
+    color: var(--clr-theme);
     cursor: pointer;
+    transform: translateY(-3px);
 }
 
 .toggle input {
@@ -236,7 +70,7 @@ h2 {
 
 .toggle-btn {
     padding: 0.3rem;
-    border: 1.5px solid var(--clr-primary);
+    border: 1.5px solid var(--bg-theme);
     border-radius: 100vmax;
     outline: none;
     background-color: transparent;
@@ -250,7 +84,7 @@ h2 {
     display: block;
     height: 1rem;
     width: 1rem;
-    background-color: var(--clr-primary);
+    background-color: var(--bg-theme);
     border-radius: 50%;
     margin-left: 1.75rem; /* Can't transition auto :( */
     transition: margin 150ms linear;
@@ -296,47 +130,3 @@ h2 {
 #alertMessage::first-letter {
     text-transform: uppercase;
 }
-
-#alertBtn { 
-    background-color: blue;
-    color: white;
-    border: none;
-    padding: 0.5rem 2rem;
-    font-family: var(--ff);
-    font-size: 1rem;
-    border-radius: 0.3rem;
-    font-weight: 600;
-    opacity: 0.75;
-    transition: opacity 350ms ease;
-}
-
-#alertBtn:hover { 
-    opacity: 0.9;
-}
-
-@media screen and (max-width: 900px) {
-    .app-container {
-        grid-template-columns: 1fr;
-        grid-template-areas: "a" "b" "c" "d";
-        max-width: 95%;
-    }
-    .search {
-        grid-area: a;
-    }
-    .city-description {
-        grid-area: b;
-    }
-    .navigation {
-        grid-area: c;
-    }
-    .crime-data {
-        grid-area: d;
-    }
-    .search-history ul {
-        display: flex;
-        gap: 1em;
-    }
-    
-}
-
-
