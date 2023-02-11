@@ -1,68 +1,101 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Project 1">
-    <link rel="stylesheet" href="./assets/css/reset.css">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>City Crime Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link id="dark-theme" rel="stylesheet" />
     <link rel="stylesheet" href="./assets/css/style.css">
-     <!-- Moment.js -->
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-     <!-- jQuery -->
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <title>Project 1</title>
-</head>
-<body class="light">
-    <div class="jumbotron">
-        <h1 class>City Crime Data</h1>
-    </div>
-    <div class="app-container" id="app-container">
-        <div class="search">
-            <div class="search-fields">
-                <input type="text" class="city-input" id="city-input" placeholder="Search for a city...">
-                <button type="submit" id="submit">
-                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path></svg>
-                </button>
+  </head>
+  <body class="light">
+    <div class="p-4 mb-4 bg-light rounded-3" id="header">
+        <div class="container-fluid py-4 text-center">
+          <h1 class="display-4">City Crime Data</h1>
+          <!-- <p class="fs-5">In case we want a blurb</p> -->
+        </div>
+      </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <form id="search">
+                    <div class="input-group mb-3">
+                        <input id="city-input" type="text" class="form-control" placeholder="Search for a city..." aria-label="Search for a city" aria-describedby="basic-addon2">
+                        <button type="submit" class="input-group-text" id="submit"><i class="bi bi-search"></i></fo>
+                    </div>
+                </form>
+                <div class="accordion mb-3" id="search-history">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="history">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#list" aria-expanded="false" aria-controls="list">
+                                Search History
+                            </button>
+                        </h2>
+                        <div id="list" class="accordion-collapse collapse" aria-labelledby="history" data-bs-parent="#search-history">
+                            <div class="accordion-body">
+                                <button id="clear-history" class="btn btn-outline-danger w-100 mb-2">Clear History</button>
+                                <ul id="search-history-list" class="list-group list-group-flush"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
             </div>
-            <div class="search-history">
-                <button id="clear-history">
-                    Clear History
-                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><g><path fill="none" d="M0 0h24v24H0z"></path><path d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3zm1 2H6v12h12V8zm-9 3h2v6H9v-6zm4 0h2v6h-2v-6zM9 4v2h6V4H9z"></path></g></svg>
-                </button>
-                <ul id="search-history-list">
+            <div class="col-lg-9">
+                <div class="cards px-2 mb-5">
+                    <div class="card-body">
+                        <h3 class="card-title h2" id="city-name">London</h3>
+                        <h4 class="card-subtitle mb-2 text-muted h6" id="city-police-force">Police force name</h4>
+                        <p class="card-text" id="city-description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio, delectus magni eius repudiandae error assumenda, est at dolores, sed quibusdam dolore quas earum aliquam exercitationem beatae. Vel nobis adipisci sit.</p>
+                    </div>
+                </div>
+                <!-- <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div> -->
+                <ul class="nav nav-tabs nav-fill border-bottom" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="radar-tab" data-bs-toggle="tab" data-bs-target="#radar-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">
+                            Radar <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M926.8 397.1l-396-288a31.81 31.81 0 0 0-37.6 0l-396 288a31.99 31.99 0 0 0-11.6 35.8l151.3 466a32 32 0 0 0 30.4 22.1h489.5c13.9 0 26.1-8.9 30.4-22.1l151.3-466c4.2-13.2-.5-27.6-11.7-35.8zM838.6 417l-98.5 32-200-144.7V199.9L838.6 417zM466 567.2l-89.1 122.3-55.2-169.2L466 567.2zm-116.3-96.8L484 373.3v140.8l-134.3-43.7zM512 599.2l93.9 128.9H418.1L512 599.2zm28.1-225.9l134.2 97.1L540.1 514V373.3zM558 567.2l144.3-46.9-55.2 169.2L558 567.2zm-74-367.3v104.4L283.9 449l-98.5-32L484 199.9zM169.3 470.8l86.5 28.1 80.4 246.4-53.8 73.9-113.1-348.4zM327.1 853l50.3-69h269.3l50.3 69H327.1zm414.5-33.8l-53.8-73.9 80.4-246.4 86.5-28.1-113.1 348.4z"></path></svg>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="bar-tab" data-bs-toggle="tab" data-bs-target="#bar-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">
+                            Bar <i class="bi bi-bar-chart"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">
+                            Table <i class="bi bi-table"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="map-tab" data-bs-toggle="tab" data-bs-target="#map-tab-pane" type="button" role="tab" aria-controls="disabled-tab-pane" aria-selected="false">
+                            Map <i class="bi bi-map"></i>
+                        </button>
+                    </li>
                 </ul>
-            </div>
-        </div>
-        <div class="city-description">
-            <h2 class="heading">Current city</h2>
-            <p class="content">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Non perferendis culpa fugit est in tenetur ea voluptatum animi dolorem reiciendis porro excepturi explicabo, quidem iusto fugiat maxime facilis accusantium laudantium!</p>
-        </div>
-        <div class="navigation">
-            <ul id="nav">
-                <li id="nav1" data-toggles="graph-container" data-type="radar">Radar</li>
-                <li id="nav2" data-toggles="graph-container" data-type="bar">Bar</li>
-                <li id="nav3" data-toggles="table-container">Table</li>
-                <li id="nav4" data-toggles="blank-container">Nav 4</li>
-            </ul>
-        </div>
-        <div class="crime-data" id="crime-data">
-            <div id="graph-container" class="active">
-                <canvas id="crime-graph" class="graph" data-type="radar"></canvas>
-            </div>
-            <div id="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <td>Category</td>
-                            <td>Number</td>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-            <div id="blank-container">
-                <canvas id="crime-table" class="table"></canvas>
+                <div class="tab-content border-start border-end border-bottom p-3 " id="myTabContent">
+                    <div class="p-3 tab-pane fade show active" id="radar-tab-pane" role="tabpanel" aria-labelledby="radar-tab" tabindex="0">
+                        <canvas id="radar-graph" class="graph" data-type="radar"></canvas>
+                    </div>
+                    <div class="tab-pane fade" id="bar-tab-pane" role="tabpanel" aria-labelledby="bar-tab" tabindex="0">
+                        <canvas id="bar-graph" class="graph" data-type="bar"></canvas>
+                    </div>
+                    <div class="tab-pane fade" id="table-tab-pane" role="tabpanel" aria-labelledby="table-tab" tabindex="0">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Category</th>
+                                    <th scope="col">Count</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="map-tab-pane" role="tabpanel" aria-labelledby="map-tab" tabindex="0">
+                        <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -79,14 +112,21 @@
         <div>
             <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.938 2.016a.146.146 0 00-.054.057L1.027 13.74a.176.176 0 00-.002.183c.016.03.037.05.054.06.015.01.034.017.066.017h13.713a.12.12 0 00.066-.017.163.163 0 00.055-.06.176.176 0 00-.003-.183L8.12 2.073a.146.146 0 00-.054-.057A.13.13 0 008.002 2a.13.13 0 00-.064.016zm1.044-.45a1.13 1.13 0 00-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z" clip-rule="evenodd"></path><path d="M7.002 12a1 1 0 112 0 1 1 0 01-2 0zM7.1 5.995a.905.905 0 111.8 0l-.35 3.507a.552.552 0 01-1.1 0L7.1 5.995z"></path></svg>
             <p id="alertMessage">Alert!</p>
-            <button id="alertBtn">OK</button>
+            <button class="btn btn-primary px-4 py-2" id="alertBtn">OK</button>
         </div>
     </dialog>
-    
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Project scripts -->
+
+    <!-- Bootstrap Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+    <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="./assets/scripts/chart.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+
+    <!-- Site scripts -->
     <script src="./assets/scripts/index.js"></script>
-</body>
+  </body>
 </html>
