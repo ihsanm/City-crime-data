@@ -93,7 +93,10 @@ function policeforce(policeforcetext){
         method: "GET",
     }).then(function (response) {
         console.log(response);
-        
+        for (i=1 ; i<3 ; i++){
+          var links = $("<p>").text(response.engagement_methods[i].type + " : " + response.engagement_methods[i].url);
+          $(".content").append(links);
+        }
        
     });
 }
