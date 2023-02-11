@@ -47,8 +47,28 @@ function updateCharts(data) {
   radarChart = createChart(data.slice(0,6), "radar");
   radarChart.options.scales.r.ticks.color = "";
   radarChart.options.scales.r.ticks.backdropColor = "rgba(0,0,0,0)";
+  const darkmode = document.body.classList.contains("dark");
+  let clr;
+  if (darkmode) {
+    clr = "rgba(255,255,255,0.6)";
+    radarChart.options.scales.r.angleLines.color = clr;
+    radarChart.options.scales.r.grid.color = clr;
+    radarChart.options.scales.r.pointLabels.color = clr;  
+  } else {
+    clr = "rgba(0,0,0,0.3)";
+    radarChart.options.scales.r.angleLines.color = clr;
+    radarChart.options.scales.r.grid.color = clr;
+  }
   if (barChart) barChart.destroy();
   barChart = createChart(data, "bar");
+  if (darkmode) {
+    clr = "rgba(255,255,255,0.6)";
+    barChart.options.scales.x.ticks.color = clr;
+    barChart.options.scales.y.ticks.color = clr;  
+    clr = "rgba(255,255,255,0.2)";
+    barChart.options.scales.x.grid.color = clr;
+    barChart.options.scales.y.grid.color = clr;
+  }
 }
 
 function createChart(data, type) {
@@ -220,28 +240,13 @@ function toggleTheme(theme) {
     document.body.classList.remove("light");
     document.body.classList.remove("dark");
     document.body.classList.add(theme);
-    let clr;
     if (theme === "dark") {
       // stylesheet.setAttribute("href", "https://bootswatch.com/5/cyborg/bootstrap.min.css");
       stylesheet.setAttribute("href", "https://bootswatch.com/5/superhero/bootstrap.min.css");
-      clr = "rgba(255,255,255,0.7)";
-      updateCharts();
-      radarChart.options.scales.r.angleLines.color = clr;
-      radarChart.options.scales.r.grid.color = clr;
-      radarChart.options.scales.r.pointLabels.color = clr;
-      barChart.options.scales.x.ticks.color = clr;
-      barChart.options.scales.y.ticks.color = clr;
-      clr = "rgba(255,255,255,0.2)";
-      barChart.options.scales.x.grid.color = clr;
-      barChart.options.scales.y.grid.color = clr;
     } else {
       stylesheet.setAttribute("href", "");
-      clr = "rgba(0,0,0,0.3)";
-      updateCharts();
-      radarChart.options.scales.r.angleLines.color = clr;
-      radarChart.options.scales.r.grid.color = clr;
-      // radarChart.options.scales.r.pointLabels.color = clr;
     }
+    updateCharts();
   }
 }
 
