@@ -45,6 +45,8 @@ function updateCharts(data) {
   data = data || crimeData;
   if (radarChart) radarChart.destroy();
   radarChart = createChart(data.slice(0,6), "radar");
+  radarChart.options.scales.r.ticks.color = "";
+  radarChart.options.scales.r.ticks.backdropColor = "rgba(0,0,0,0)";
   if (barChart) barChart.destroy();
   barChart = createChart(data, "bar");
 }
@@ -61,6 +63,7 @@ function createChart(data, type) {
         },
       ],
     },
+    options: { plugins: { legend: { display: false } } },
   });
   return chart
 }
@@ -213,14 +216,32 @@ function toggleTheme(theme) {
   } else if (theme === "dark") {
     dark.checked = true;
   } else { theme = ""; }
-  document.body.classList.remove("light");
-  document.body.classList.remove("dark");
-  document.body.classList.add(theme);
-  if (theme === "dark") {
-    // stylesheet.setAttribute("href", "https://bootswatch.com/5/cyborg/bootstrap.min.css");
-    stylesheet.setAttribute("href", "https://bootswatch.com/5/superhero/bootstrap.min.css");
-  } else {
-    stylesheet.setAttribute("href", "");
+  if (!document.body.classList.contains(theme)) {
+    document.body.classList.remove("light");
+    document.body.classList.remove("dark");
+    document.body.classList.add(theme);
+    let clr;
+    if (theme === "dark") {
+      // stylesheet.setAttribute("href", "https://bootswatch.com/5/cyborg/bootstrap.min.css");
+      stylesheet.setAttribute("href", "https://bootswatch.com/5/superhero/bootstrap.min.css");
+      clr = "rgba(255,255,255,0.7)";
+      updateCharts();
+      radarChart.options.scales.r.angleLines.color = clr;
+      radarChart.options.scales.r.grid.color = clr;
+      radarChart.options.scales.r.pointLabels.color = clr;
+      barChart.options.scales.x.ticks.color = clr;
+      barChart.options.scales.y.ticks.color = clr;
+      clr = "rgba(255,255,255,0.2)";
+      barChart.options.scales.x.grid.color = clr;
+      barChart.options.scales.y.grid.color = clr;
+    } else {
+      stylesheet.setAttribute("href", "");
+      clr = "rgba(0,0,0,0.3)";
+      updateCharts();
+      radarChart.options.scales.r.angleLines.color = clr;
+      radarChart.options.scales.r.grid.color = clr;
+      // radarChart.options.scales.r.pointLabels.color = clr;
+    }
   }
 }
 
