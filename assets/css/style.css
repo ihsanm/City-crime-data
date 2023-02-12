@@ -130,3 +130,15 @@ h1 {
 #alertMessage::first-letter {
     text-transform: uppercase;
 }
+
+@media screen and (max-width: 400px) {
+    .nav-link i, .nav-link svg {
+        font-size: 10px;
+    }    
+}
+
+@media screen and (max-width: 320px) {
+    .nav-link:not(i, svg) {
+        font-size: 11px;
+    }    
+}
