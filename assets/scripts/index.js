@@ -154,9 +154,12 @@ function policeforce(policeforcetext){
 // Function that accepts an object containing a latitude and longitude
 // in the format obj.lat and obj.lon
 function getCrimeData(location) {
-    destroyCharts();
-    if (!location || !location.latitude) return;
-    crimeData = [];
+    crimeData = [];  
+    if (!location || !location.latitude) {
+      destroyCharts();
+      $("tbody").empty();
+      return;
+    }
     let url = `https://data.police.uk/api/crimes-street/all-crime?lat=${location.latitude}&lng=${location.longitude}` //&date=2017-01
     fetch(url)
     .then(res => res.json())
