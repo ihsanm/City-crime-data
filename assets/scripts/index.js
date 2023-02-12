@@ -84,7 +84,7 @@ function createChart(data, type) {
       ],
     },
     // options: { plugins: { legend: { display: false } } },
-    options: { aspectRatio:1, indexAxis: "y", plugins: { legend: { display: false } } },
+    options: { aspectRatio:2, indexAxis: "y", plugins: { legend: { display: false } } },
   });
   return chart
 }
