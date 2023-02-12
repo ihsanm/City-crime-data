@@ -71,6 +71,7 @@ function updateCharts(data) {
   }
 }
 
+
 function createChart(data, type) {
   const chart = new Chart(document.getElementById(type + "-graph"), {
     type: type,
@@ -88,6 +89,13 @@ function createChart(data, type) {
   });
   return chart
 }
+
+function destroyCharts() {
+    radarChart.destroy();
+    barChart.destroy();
+    radarChart = null;
+    barChart = null;
+  }
 
 // Gets lat / lon from searched city
 function getGeoData(city) {
@@ -146,8 +154,12 @@ function policeforce(policeforcetext){
 // Function that accepts an object containing a latitude and longitude
 // in the format obj.lat and obj.lon
 function getCrimeData(location) {
-    if (!location || !location.latitude) return;
-    crimeData = [];
+    crimeData = [];  
+    if (!location || !location.latitude) {
+      destroyCharts();
+      $("tbody").empty();
+      return;
+    }
     let url = `https://data.police.uk/api/crimes-street/all-crime?lat=${location.latitude}&lng=${location.longitude}` //&date=2017-01
     fetch(url)
     .then(res => res.json())
