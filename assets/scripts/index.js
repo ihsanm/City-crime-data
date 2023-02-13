@@ -68,9 +68,10 @@ function updateCharts(data) {
     clr = "rgba(255,255,255,0.2)";
     barChart.options.scales.x.grid.color = clr;
     barChart.options.scales.y.grid.color = clr;
+    $("#bar-graph").css("height", Math.max(50, 50 * data.length) + "px");
+    $("#bar-graph").css("width", "100%");
   }
 }
-
 
 function createChart(data, type) {
   const chart = new Chart(document.getElementById(type + "-graph"), {
@@ -84,8 +85,7 @@ function createChart(data, type) {
         },
       ],
     },
-    // options: { plugins: { legend: { display: false } } },
-    options: { aspectRatio:1, indexAxis: "y", plugins: { legend: { display: false } } },
+    options: { maintainAspectRatio: (type === "bar" ? false : true), indexAxis: "y", plugins: { legend: { display: false } } },
   });
   return chart
 }
@@ -100,12 +100,9 @@ function destroyCharts() {
 // Gets lat / lon from searched city
 function getGeoData(city) {
     var APIKey = "33759846bc0f4ad6eea2a8a5065678b2";
-    // var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + ", GB&appid=" + APIKey;
     var queryURL = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + ",GB&appid=" + APIKey;
     fetch(queryURL).then(r => r.json()).then(data => {
-      // if (data.message) {  
       if (!data.length) {
-          // showAlert(data.message)
           showAlert("Location not found")
         } else {
           // Success! Update city name and add to search history
@@ -118,10 +115,9 @@ function getGeoData(city) {
             localStorage.setItem("search", JSON.stringify(searchHistory));
             renderhistoryLi();
           }
-          // const location = {city, latitude: data.coord.lat,longitude: data.coord.lon};
           location = {city, latitude: location.lat,longitude: location.lon};
           getCrimeData(location);
-          sunStatus(location);
+          // sunStatus(location); // I don't think we should change the theme base on search. Just have it for user location
           getpoliceforce(location);
         }
     });
@@ -130,7 +126,7 @@ function getGeoData(city) {
 // 2 functions to get the police force from lat and long and the other to give details about the police force
 function getpoliceforce(location){
 	$.ajax({
-        url: "https://data.police.uk/api/locate-neighbourhood?q="+location.latitude+","+location.longitude,
+        url: "https://data.police.uk/api/locate-neighbourhood?q="+location.latitude +","+ location.longitude,
         method: "GET",
     }).then(function (response) {
         const policeforcetext = response.force;
@@ -216,7 +212,6 @@ function renderhistoryLi() {
     }
     for (var i = 0; i < searchHistory.length; i++) {
       var historyItem = $(`<a href="#" class="list-group-item list-group-item-action">${searchHistory[i]}</a>`);
-      // historyItem.addClass("li-button");
       historyItem.attr("data-name", searchHistory[i]);
       $("#search-history-list").append(historyItem);
     }
@@ -224,15 +219,7 @@ function renderhistoryLi() {
 
 // removes duplicates from arrray  
 function unique(arr) {
-  for (var i = 0; i < arr.length; i++) {
-    for (var j = i + 1; j < arr.length; j++) {
-      if (arr[i] == arr[j]) {
-        arr.splice(j, 1);
-        j--;
-      }
-    }
-  }
-  return arr;
+  return [...new Set(arr)];
 }
 
 // Toggles theme
@@ -273,14 +260,23 @@ function capitalize(str) {
 }
 
 function getIPLocation() {
-  fetch("http://ip-api.com/json/").then(r => r.json()).then(data => {
-    // console.log(data);
-    const location = { city: data.city, latitude: data.lat, longitude: data.lon };
-    getCrimeData(location);
-    getpoliceforce(location);
-    sunStatus(location);
-    $("#city-name").text(data.city);
+  fetch("https://api.bigdatacloud.net/data/reverse-geocode-client").then(r => r.json()).then(data => {
+    const location = { city: data.city, latitude: data.latitude, longitude: data.longitude };
+    console.log(data);
+    sunStatus(location); 
+    if (data.countryCode === "GB") {
+      getCrimeData(location);
+      getpoliceforce(location);
+      $("#city-name").text(data.city);
+    }
   })
+}
+
+function clearData() {
+  $("#city-police-force").empty();
+  $("#city-description").empty();
+  $("tbody").empty();
+  destroyCharts();
 }
 
 // ================
@@ -328,6 +324,24 @@ function addAllEventListeners() {
     var historyItem = $(this).attr("data-name");
     cityapi(historyItem);
     getGeoData(historyItem);
+  });
+
+  // Gets user exact location if allowed and updates data
+  $("#search .input-group svg").on("click", () => {
+    navigator.geolocation.getCurrentPosition((location) => {
+      fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.countryCode === "GB") {
+        $("#city-name").text(data.city);
+          getCrimeData(data);
+          getpoliceforce(data);
+          console.log({data});
+        } else {
+          showAlert("Crime data only availble for England.")
+        }
+      });
+    });
   });
 
   // Closes modal
