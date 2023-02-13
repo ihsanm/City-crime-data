@@ -68,9 +68,10 @@ function updateCharts(data) {
     clr = "rgba(255,255,255,0.2)";
     barChart.options.scales.x.grid.color = clr;
     barChart.options.scales.y.grid.color = clr;
+    $("#bar-graph").css("height", Math.max(50, 50 * data.length) + "px");
+    $("#bar-graph").css("width", "100%");
   }
 }
-
 
 function createChart(data, type) {
   const chart = new Chart(document.getElementById(type + "-graph"), {
@@ -85,7 +86,7 @@ function createChart(data, type) {
       ],
     },
     // options: { plugins: { legend: { display: false } } },
-    options: { aspectRatio:1, indexAxis: "y", plugins: { legend: { display: false } } },
+    options: { maintainAspectRatio: (type === "bar" ? false : true), indexAxis: "y", plugins: { legend: { display: false } } },
   });
   return chart
 }
