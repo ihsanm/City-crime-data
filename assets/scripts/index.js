@@ -291,6 +291,13 @@ function getIPLocation() {
   })
 }
 
+function clearData() {
+  $("#city-police-force").empty();
+  $("#city-description").empty();
+  $("tbody").empty();
+  destroyCharts();
+}
+
 // ================
 // Event listeners
 // ================
