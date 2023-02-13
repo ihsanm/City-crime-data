@@ -1,12 +1,19 @@
 const SUNRISE_SUNSET_API_KEY = "your_sunrise_sunset_api_key_here";
 const OPEN_WEATHER_MAP_API_KEY = "3a95d1ed9bf689469735b199ebeae609";
-let chart;
+let radarChart, barChart;
 let crimeData = [];
 // gets city name from text input and puts it in a variable and put into localStorage
 var searchHistory = JSON.parse(localStorage.getItem("search")) || [];
-unique(searchHistory);
-renderhistoryLi();
-getIPLocation();
+
+init();
+
+// Set up app
+function init() {
+  getIPLocation();
+  addAllEventListeners();
+  unique(searchHistory);
+  renderhistoryLi();
+}
 
 // gets sunrise/sunset for location
 function sunStatus(location) {
@@ -26,52 +33,97 @@ function sunStatus(location) {
 
       if (currentTime >= sunrise && currentTime <= sunset) {
         toggleTheme("light");
-        // document.body.style.backgroundColor = "#FFFDD0";
       } else {
         toggleTheme("dark");
-        // document.body.style.backgroundColor = "grey";
       }
     })
     .catch((error) => console.error(error));
 }
 
 // updates crime graph
-function updateGraph(data) {
+function updateCharts(data) {
   data = data || crimeData;
-  // if (data.length === 0) return;
-  let label = "Crime frequency";
-  type = document.getElementById("crime-graph").dataset.type;
-  if (type === "radar") data = data.slice(0,6);
-  if (chart) {
-    chart.destroy();
+  if (radarChart) radarChart.destroy();
+  radarChart = createChart(data.slice(0,6), "radar");
+  radarChart.options.scales.r.ticks.color = "";
+  radarChart.options.scales.r.ticks.backdropColor = "rgba(0,0,0,0)";
+  const darkmode = document.body.classList.contains("dark");
+  let clr;
+  if (darkmode) {
+    clr = "rgba(255,255,255,0.6)";
+    radarChart.options.scales.r.angleLines.color = clr;
+    radarChart.options.scales.r.grid.color = clr;
+    radarChart.options.scales.r.pointLabels.color = clr;  
+  } else {
+    clr = "rgba(0,0,0,0.3)";
+    radarChart.options.scales.r.angleLines.color = clr;
+    radarChart.options.scales.r.grid.color = clr;
   }
-  chart = new Chart(document.getElementById("crime-graph"), {
+  if (barChart) barChart.destroy();
+  barChart = createChart(data, "bar");
+  if (darkmode) {
+    clr = "rgba(255,255,255,0.6)";
+    barChart.options.scales.x.ticks.color = clr;
+    barChart.options.scales.y.ticks.color = clr;  
+    clr = "rgba(255,255,255,0.2)";
+    barChart.options.scales.x.grid.color = clr;
+    barChart.options.scales.y.grid.color = clr;
+  }
+}
+
+
+function createChart(data, type) {
+  const chart = new Chart(document.getElementById(type + "-graph"), {
     type: type,
     data: {
       labels: data.map((row) => row.category),
       datasets: [
         {
-          label: label,
+          label: "Crime frequency",
           data: data.map((row) => row.count),
         },
       ],
     },
+    // options: { plugins: { legend: { display: false } } },
+    options: { aspectRatio:1, indexAxis: "y", plugins: { legend: { display: false } } },
   });
+  return chart
 }
+
+function destroyCharts() {
+    radarChart.destroy();
+    barChart.destroy();
+    radarChart = null;
+    barChart = null;
+  }
 
 // Gets lat / lon from searched city
 function getGeoData(city) {
-    // var currentDate = moment().format("L");
     var APIKey = "33759846bc0f4ad6eea2a8a5065678b2";
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + ", GB&appid=" + APIKey;
-    $.ajax({
-        url: queryURL,
-        method: "GET",
-    }).then(function (response) {
-        const location = {city, latitude: response.coord.lat,longitude: response.coord.lon};
-        getCrimeData(location);
-        sunStatus(location);
-        getpoliceforce(location);
+    // var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + ", GB&appid=" + APIKey;
+    var queryURL = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + ",GB&appid=" + APIKey;
+    fetch(queryURL).then(r => r.json()).then(data => {
+      // if (data.message) {  
+      if (!data.length) {
+          // showAlert(data.message)
+          showAlert("Location not found")
+        } else {
+          // Success! Update city name and add to search history
+          let location = data[0];
+          city = location.name;
+          $("#city-name").text(city);
+          if (!searchHistory.includes(city)) {
+            searchHistory.unshift(city);
+            if (searchHistory.length > 10) searchHistory.pop();
+            localStorage.setItem("search", JSON.stringify(searchHistory));
+            renderhistoryLi();
+          }
+          // const location = {city, latitude: data.coord.lat,longitude: data.coord.lon};
+          location = {city, latitude: location.lat,longitude: location.lon};
+          getCrimeData(location);
+          sunStatus(location);
+          getpoliceforce(location);
+        }
     });
 }
 
@@ -81,7 +133,6 @@ function getpoliceforce(location){
         url: "https://data.police.uk/api/locate-neighbourhood?q="+location.latitude+","+location.longitude,
         method: "GET",
     }).then(function (response) {
-        console.log(response);
         const policeforcetext = response.force;
        policeforce(policeforcetext);
     });
@@ -93,19 +144,22 @@ function policeforce(policeforcetext){
         method: "GET",
     }).then(function (response) {
         console.log(response);
-        for (i=1 ; i<3 ; i++){
-          var links = $("<p>").text(response.engagement_methods[i].type + " : " + response.engagement_methods[i].url);
-          $(".content").append(links);
-        }
-       
+        $("#city-police-force").text(response.name);
+        const info = $("#city-description")
+        info.empty();
+        if (response.description) info.html(response.description);
+        info.append($(`<a href="${response.url}" target="_blank">${response.url}</a>`));
     });
 }
 // Function that accepts an object containing a latitude and longitude
 // in the format obj.lat and obj.lon
 function getCrimeData(location) {
-    // console.log(location)
-    if (!location || !location.latitude) return;
-    crimeData = [];
+    crimeData = [];  
+    if (!location || !location.latitude) {
+      destroyCharts();
+      $("tbody").empty();
+      return;
+    }
     let url = `https://data.police.uk/api/crimes-street/all-crime?lat=${location.latitude}&lng=${location.longitude}` //&date=2017-01
     fetch(url)
     .then(res => res.json())
@@ -115,15 +169,11 @@ function getCrimeData(location) {
           obj[item.category] = (obj[item.category] || 0) + 1;
         });
         for (let category in obj) {
-          words = category.split("-");
-          let cat = "";
-          words.forEach(word => {
-            cat += word.charAt(0).toUpperCase() + word.slice(1) + " ";
-          });
-          crimeData.push({category: cat.trim(), count: obj[category]});
+          let cat = capitalize(category.replaceAll("-"," "));
+          crimeData.push({category: cat, count: obj[category]});
         }
         crimeData.sort((a, b) => b.count - a.count);
-        updateGraph();
+        updateCharts();
         updateTable();
     });
 }
@@ -131,62 +181,43 @@ function getCrimeData(location) {
 // Updates crime data table
 function updateTable(data) {
   data = data || crimeData;
-  tbl = document.querySelector("#table-container tbody");
-  tbl.textContent = "";
-  data.forEach(item => {
-    const rw = document.createElement("tr");
-    rw.appendChild(document.createElement("td")).textContent = item.category;
-    rw.appendChild(document.createElement("td")).textContent = item.count;
-    tbl.appendChild(rw);
+  const tbl = $("tbody");
+  tbl.empty();
+  data.forEach((item, i) => {
+    const rw = $("<tr>");
+    rw.append($(`<th scope="row">${(i + 1)}</th>`));
+    rw.append($(`<td>${item.category}</td>`));
+    rw.append($(`<td>${item.count}</td>`));
+    tbl.append(rw);
   });
-}
-
-// Toggle between nav panes
-function navClick(e) {
-  if (e.target.nodeName === "LI") {
-    const id = e.target.dataset.toggles;
-    const target = document.getElementById(id);
-    const type = e.target.dataset.type || "radar";
-    const cht = document.getElementById("crime-graph");
-    if (cht.dataset.type !== type) {
-      cht.dataset.type = type;
-      updateGraph();
-    } 
-    if (!target) return;
-    const panes = document.getElementById("crime-data");
-    for (let pane of panes.children) {
-      pane.classList.remove("active");
-    }
-    target.classList.add("active");
-    for (let li of document.getElementById("nav").children) {
-      li.classList.remove("active");
-    }
-    e.target.classList.add("active");
-  }
 }
 
 // function to get api data for city api
 function cityapi(cityname){
-
+    return; // Don't think we're using this anymore???
     $.ajax({
         url: "https://api.api-ninjas.com/v1/city?name=" + cityname,
         method:"GET",
         headers: { 'X-Api-Key': 'go1NeuJz94QeGftEPbnsgg==hvklAeK6cSwQ06Ti'}
     }).then(function(response){
-        console.log(response);
-        $(".heading").text(response[0].name);
-        $(".content").text("Country : " + response[0].country + "  Population : " + (response[0].population).toLocaleString("en-US"));
+        // console.log(response);
+        $("#city-name").text(response[0].name);
+        $("#city-description").text("Country : " + response[0].country + "  Population : " + (response[0].population).toLocaleString("en-US"));
     });
 }
 
 // Ouputs search history to screen
 function renderhistoryLi() {
     $("#search-history-list").empty();
+    if (searchHistory.length > 0) {
+      $("#clear-history").removeClass("hidden");
+    } else {
+      $("#clear-history").addClass("hidden");
+    }
     for (var i = 0; i < searchHistory.length; i++) {
-      var historyItem = $("<li>");
-      historyItem.addClass("li-button");
+      var historyItem = $(`<a href="#" class="list-group-item list-group-item-action">${searchHistory[i]}</a>`);
+      // historyItem.addClass("li-button");
       historyItem.attr("data-name", searchHistory[i]);
-      historyItem.text(searchHistory[i]);
       $("#search-history-list").append(historyItem);
     }
   }
@@ -208,21 +239,27 @@ function unique(arr) {
 function toggleTheme(theme) {
   const light = document.querySelector("#light");
   const dark = document.querySelector("#dark");
+  const stylesheet = document.getElementById("dark-theme");
   if (light.checked && !theme) {
       theme = "light";
   } else if (dark.checked && !theme) {
       theme = "dark";
   } else if (theme === "light") {
     light.checked = true;
-    // dark.checked = false;
   } else if (theme === "dark") {
-    //light.checked = false;
     dark.checked = true;
   } else { theme = ""; }
-  if (theme) {
+  if (!document.body.classList.contains(theme)) {
     document.body.classList.remove("light");
     document.body.classList.remove("dark");
     document.body.classList.add(theme);
+    if (theme === "dark") {
+      // stylesheet.setAttribute("href", "https://bootswatch.com/5/cyborg/bootstrap.min.css");
+      stylesheet.setAttribute("href", "https://bootswatch.com/5/superhero/bootstrap.min.css");
+    } else {
+      stylesheet.setAttribute("href", "");
+    }
+    updateCharts();
   }
 }
 
@@ -237,79 +274,69 @@ function capitalize(str) {
 
 function getIPLocation() {
   fetch("http://ip-api.com/json/").then(r => r.json()).then(data => {
-    console.log(data);
+    // console.log(data);
     const location = { city: data.city, latitude: data.lat, longitude: data.lon };
     getCrimeData(location);
     getpoliceforce(location);
     sunStatus(location);
-    $(".heading").text(data.city);
+    $("#city-name").text(data.city);
   })
 }
 
 // ================
 // Event listeners
 // ================
+function addAllEventListeners() {
 
-// Handles nav clicks
-document.querySelector("#nav").addEventListener("click", navClick);
-
-// Search for city on submit button click
-$("#submit").on("click", function (event) {
-  event.preventDefault();
-  var input = $("#city-input");
-  var cityname = input.val().trim();
-  if (cityname) {
-    cityname = capitalize(cityname);
-    searchHistory.unshift(cityname);
-    if (searchHistory.length > 10) searchHistory.pop();
-    localStorage.setItem("search", JSON.stringify(searchHistory));
-    renderhistoryLi();
-    cityapi(cityname);
-    getGeoData(cityname);
-    input.val("");
-  } else {
-    showAlert("City required");
-  }
-});
-
-// clears search history when clicked
-$("#clear-history").on("click", function(){
-  $("#search-history-list").empty()
-  localStorage.removeItem("search");
-  searchHistory = [];
-})
-
-// Toggles theme when clicked
-$("#theme-toggle").on("click", (e) => {
-  if (e.target.tagName === "BUTTON") {
-    if (light.checked) {
-      dark.checked = true;
+  // Search for city on submit button click
+  $("#search").on("submit", function (event) {
+    event.preventDefault();
+    var input = $("#city-input");
+    var cityname = input.val().trim();
+    if (cityname) {
+      cityname = capitalize(cityname);
+      // cityapi(cityname);
+      getGeoData(cityname);
+      input.val("");
     } else {
-      light.checked = true;
+      showAlert("City required");
     }
-  }
-  toggleTheme();
-});
+  });
 
-// Search on enter key
-document.getElementById("city-input").addEventListener("keypress", (e) => {
-  if (e.key === "Enter") document.getElementById("submit").click();
-})
+  // clears search history when clicked
+  $("#clear-history").on("click", function(){
+    $("#search-history-list").empty()
+    localStorage.removeItem("search");
+    searchHistory = [];
+    $("#clear-history").addClass("hidden");
+  })
 
-// Updates data on search history item click
-$(document).on("click", ".li-button", function () {
-  var historyItem = $(this).attr("data-name");
-  cityapi(historyItem);
-  getGeoData(historyItem);
-});
+  // Toggles theme when clicked
+  $("#theme-toggle").on("click", (e) => {
+    if (e.target.tagName === "BUTTON") {
+      if (light.checked) {
+        dark.checked = true;
+      } else {
+        light.checked = true;
+      }
+    }
+    toggleTheme();
+  });
+
+  // Updates data on search history item click
+  $(document).on("click", "ul a", function () {
+    var historyItem = $(this).attr("data-name");
+    cityapi(historyItem);
+    getGeoData(historyItem);
+  });
+
+  // Closes modal
+  document.querySelector("#alert").addEventListener("click", e => document.querySelector("#alert").close() );
+}
 
 // =============
 // Alert modal
 // =============
-
-// Closes modal
-document.querySelector("#alert").addEventListener("click", e => document.querySelector("#alert").close() );
-
 // Shows a modal alert
 function showAlert(message) {
   if (!message || !message.trim()) { message = "Alert!" }
