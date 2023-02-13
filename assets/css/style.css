@@ -11,6 +11,10 @@
     --clr-theme: white;
 }
 
+.hidden {
+    visibility: hidden;
+}
+
 body {
     transition: all 1s ease;
 }
@@ -37,12 +41,17 @@ h1 {
     background-image: linear-gradient(rgba(15, 37, 55, 0.6), rgba(15, 37, 55, 1)), url("../images/bg-header2.jpg");
 }
 
-#radar-graph {
-    max-height: 500px;
+#search .input-group svg {
+    position: absolute;
+    top: 10px;
+    right: 45px;
+    color: black;
+    z-index: 999;
+    cursor: pointer;
 }
 
-.hidden {
-    visibility: hidden;
+#radar-graph {
+    max-height: 500px;
 }
 
 .toggle {
