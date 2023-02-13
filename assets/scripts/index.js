@@ -122,7 +122,7 @@ function getGeoData(city) {
           // const location = {city, latitude: data.coord.lat,longitude: data.coord.lon};
           location = {city, latitude: location.lat,longitude: location.lon};
           getCrimeData(location);
-          sunStatus(location);
+          // sunStatus(location); // I don't think we should change the theme base on search. Just have it for user location
           getpoliceforce(location);
         }
     });
@@ -279,13 +279,15 @@ function capitalize(str) {
 }
 
 function getIPLocation() {
-  fetch("http://ip-api.com/json/").then(r => r.json()).then(data => {
-    // console.log(data);
-    const location = { city: data.city, latitude: data.lat, longitude: data.lon };
-    getCrimeData(location);
-    getpoliceforce(location);
-    sunStatus(location);
-    $("#city-name").text(data.city);
+  fetch("https://api.bigdatacloud.net/data/reverse-geocode-client").then(r => r.json()).then(data => {
+    const location = { city: data.city, latitude: data.latitude, longitude: data.longitude };
+    console.log(data);
+    sunStatus(location); 
+    if (data.countryCode === "GB") {
+      getCrimeData(location);
+      getpoliceforce(location);
+      $("#city-name").text(data.city);
+    }
   })
 }
 
@@ -334,6 +336,24 @@ function addAllEventListeners() {
     var historyItem = $(this).attr("data-name");
     cityapi(historyItem);
     getGeoData(historyItem);
+  });
+
+  // Gets user exact location if allowed and updates data
+  $("#search .input-group svg").on("click", () => {
+    navigator.geolocation.getCurrentPosition((location) => {
+      fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${location.coords.latitude}&longitude=${location.coords.longitude}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.countryCode === "GB") {
+        $("#city-name").text(data.city);
+          getCrimeData(data);
+          getpoliceforce(data);
+          console.log({data});
+        } else {
+          showAlert("Crime data only availble for England.")
+        }
+      });
+    });
   });
 
   // Closes modal
