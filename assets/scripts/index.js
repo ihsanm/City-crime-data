@@ -144,7 +144,7 @@ function policeforce(policeforcetext){
         const info = $("#city-description")
         info.empty();
         if (response.description) info.html(response.description);
-        info.append($(`<a href="${response.url}" target="_blank">${response.url}</a>`));
+        // info.append($(`<a href="${response.url}" target="_blank">${response.url}</a>`));
 
         for( i=0 ; i< response.engagement_methods.length ; i++){
         info.append($("<br>" + `<a href="${response.engagement_methods[i].url}" target="_blank">${response.engagement_methods[i].url}</a>`));
