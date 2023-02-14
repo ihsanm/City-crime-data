@@ -145,6 +145,7 @@ function policeforce(policeforcetext){
         info.empty();
         if (response.description) info.html(response.description);
         info.append($(`<a href="${response.url}" target="_blank">${response.url}</a>`));
+        info.append("<br>" + " Telephone : " + response.telephone)
     });
 }
 // Function that accepts an object containing a latitude and longitude
