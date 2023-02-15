@@ -1,5 +1,6 @@
 const SUNRISE_SUNSET_API_KEY = "your_sunrise_sunset_api_key_here";
 const OPEN_WEATHER_MAP_API_KEY = "3a95d1ed9bf689469735b199ebeae609";
+const GM_API_KEY = "AIzaSyCEgJmAA89XQmfs9fR9W10QO0dRudLCv5U"
 let radarChart, barChart;
 let crimeData = [];
 // gets city name from text input and puts it in a variable and put into localStorage
@@ -12,7 +13,7 @@ function init() {
   const tooltipList = [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
   getIPLocation();
   addAllEventListeners();
- // unique(searchHistory);
+  // unique(searchHistory);
   renderhistoryLi();
 }
 
@@ -25,10 +26,18 @@ $("#city-input").on("keyup", (e) => {
   }
 })
 
+function autocompleteList() {
+  const array = [];
+  Object.values(places).forEach(place => array.push(place[0]));
+  $("#city-input").autocomplete({
+    source: array
+  });
+}
+
 function autocompleteSearch(search) {
   if (search) {
     const token = Math.floor(Math.random() * 6000) + 1;
-    let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?region=uk&types=locality%7Csublocality%7Cpostal_code&language=en-GB&input=uk,${search}&key=${GM_API_KEY}&token=${token}`
+    let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?region=uk&types=locality|sublocality|postal_code&language=en-GB&input=uk,${search}&key=${GM_API_KEY}&token=${token}`
     url = "https://corsproxy.io/?" + encodeURIComponent(url);
     fetch(url).then(r => r.json()).then(data => {
       places = {};
@@ -40,18 +49,36 @@ function autocompleteSearch(search) {
   }
 } 
 
-function addHistory(location) {
-  searchHistory.forEach((item, idx) => {
-    if (item.name === location.name) {
-      searchHistory.splice(idx,1);
-    }
-  });
-  searchHistory.unshift(location);
-  while (searchHistory.length > 10) { 
-    searchHistory.pop(); 
+function getPlaceLocation(name) {
+  const id = places[name][1] || "";
+  if (id.length = 0) { 
+    getGeoData(name);
+    return; 
   }
-  localStorage.setItem("search", JSON.stringify(searchHistory));
-  renderhistoryLi();
+  const token = Math.floor(Math.random() * 6000) + 1;
+  let url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${id}&key=${GM_API_KEY}&token=${token}`
+  url = "https://corsproxy.io/?" + encodeURIComponent(url);
+  fetch(url).then(r => r.json()).then(data => {
+    const location = {name: data.result.address_components[0].long_name, latitude: data.result.geometry.location.lat, longitude: data.result.geometry.location.lng};
+    $("#city-name").text(location.name);
+    addHistory(location);
+    getCrimeData(location);
+    getpoliceforce(location);
+  });
+}
+
+function addHistory(location) {
+    searchHistory.forEach((item, idx) => {
+      if (item.name === location.name) {
+        searchHistory.splice(idx,1);
+      }
+    });
+    searchHistory.unshift(location);
+    while (searchHistory.length > 10) { 
+      searchHistory.pop(); 
+    }
+	  localStorage.setItem("search", JSON.stringify(searchHistory));
+    renderhistoryLi();
 }
 
 // gets sunrise/sunset for location
@@ -107,9 +134,9 @@ function updateCharts(data) {
     clr = "rgba(255,255,255,0.2)";
     barChart.options.scales.x.grid.color = clr;
     barChart.options.scales.y.grid.color = clr;
-    $("#bar-graph").css("height", Math.max(50, 50 * data.length) + "px");
-    $("#bar-graph").css("width", "100%");
   }
+  $("#bar-graph").css("height", Math.max(50, 50 * data.length) + "px");
+  $("#bar-graph").css("width", "100%");
 }
 
 function createChart(data, type) {
@@ -126,18 +153,26 @@ function createChart(data, type) {
     },
     options: { maintainAspectRatio: (type === "bar" ? false : true), indexAxis: "y", plugins: { legend: { display: false } } },
   });
+  // console.log(data.map((row) => row.category.replace(/( \S+) /g, "$1\n")));
   return chart
 }
 
+// Clear chats if they exist
 function destroyCharts() {
-    radarChart.destroy();
-    barChart.destroy();
+    if (radarChart) { radarChart.destroy(); }
+    if (radarChart) { barChart.destroy(); }
     radarChart = null;
     barChart = null;
   }
 
 // Gets lat / lon from searched city
 function getGeoData(city) {
+    city = city.toUpperCase();
+    if (places.hasOwnProperty(city)) {
+      getPlaceLocation(city);
+      return;
+    }
+    city = capitalize(city);
     var APIKey = "33759846bc0f4ad6eea2a8a5065678b2";
     var queryURL = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + ",GB&appid=" + APIKey;
     fetch(queryURL).then(r => r.json()).then(data => {
@@ -146,17 +181,10 @@ function getGeoData(city) {
         } else {
           // Success! Update city name and add to search history
           let location = data[0];
-          city = location.name;
-          $("#city-name").text(city);
-          if (!searchHistory.includes(city)) {
-            searchHistory.unshift(city);
-            if (searchHistory.length > 10) searchHistory.pop();
-            localStorage.setItem("search", JSON.stringify(searchHistory));
-            renderhistoryLi();
-          }
-          location = {city, latitude: location.lat,longitude: location.lon};
+          $("#city-name").text(location.name);
+          location = { name: location.name, latitude: location.lat,longitude: location.lon };
+          addHistory(location);
           getCrimeData(location);
-          // sunStatus(location); // I don't think we should change the theme base on search. Just have it for user location
           getpoliceforce(location);
         }
     });
@@ -172,6 +200,7 @@ function getpoliceforce(location){
        policeforce(policeforcetext);
     });
 }
+
 function policeforce(policeforcetext){
 	$.ajax({
         url: "https://data.police.uk/api/forces/" + policeforcetext,
@@ -219,6 +248,31 @@ function policeforce(policeforcetext){
         if (response.telephone) { info.append("<br>" + "<b>" + " Telephone : " + response.telephone + "<b>"); }
     });
 }
+
+//alternative method for fecthing crime data by nearest neighbourhood
+function neighbourhoodCrime(location) {
+  let url = `https://data.police.uk/api/locate-neighbourhood?q=${location.latitude},${location.longitude}` //&date=2017-01
+  $.ajax({ url, method: "GET" }).then(data => {
+    url = `https://data.police.uk/api/${data.force}/${data.neighbourhood}`;
+    $.ajax({ url, method: "GET" }).then(data => {
+      url = `https://data.police.uk/api/crimes-street/all-crime?lat=${data.centre.latitude}&lng=${data.centre.longitude}`
+      $.ajax({ url, method: "GET" }).then(data => {
+        obj = {};
+        data.forEach(item => {
+          obj[item.category] = (obj[item.category] || 0) + 1;
+        });
+        for (let category in obj) {
+          let cat = capitalize(category.replaceAll("-"," "));
+          crimeData.push({category: cat, count: obj[category]});
+        }
+        crimeData.sort((a, b) => b.count - a.count);
+        updateCharts();
+        updateTable();
+      });
+    });
+  });
+}
+
 // Function that accepts an object containing a latitude and longitude
 // in the format obj.lat and obj.lon
 function getCrimeData(location) {
@@ -229,6 +283,7 @@ function getCrimeData(location) {
       return;
     }
     let url = `https://data.police.uk/api/crimes-street/all-crime?lat=${location.latitude}&lng=${location.longitude}` //&date=2017-01
+    // neighbourhoodCrime(location); return;
     fetch(url)
     .then(res => res.json())
     .then(data => {
@@ -260,38 +315,23 @@ function updateTable(data) {
   });
 }
 
-// function to get api data for city api
-function cityapi(cityname){
-    return; // Don't think we're using this anymore???
-    $.ajax({
-        url: "https://api.api-ninjas.com/v1/city?name=" + cityname,
-        method:"GET",
-        headers: { 'X-Api-Key': 'go1NeuJz94QeGftEPbnsgg==hvklAeK6cSwQ06Ti'}
-    }).then(function(response){
-        // console.log(response);
-        $("#city-name").text(response[0].name);
-        $("#city-description").text("Country : " + response[0].country + "  Population : " + (response[0].population).toLocaleString("en-US"));
-    });
-}
-
 // Ouputs search history to screen
-
 function renderhistoryLi() {
-  $("#search-history-list").empty();
-  if (searchHistory.length > 0) {
-    $("#clear-history").removeClass("hidden");
-  } else {
-    $("#clear-history").addClass("hidden");
+    $("#search-history-list").empty();
+    if (searchHistory.length > 0) {
+      $("#clear-history").removeClass("hidden");
+    } else {
+      $("#clear-history").addClass("hidden");
+    }
+    for (var i = 0; i <  searchHistory.length; i++) {
+      var location = searchHistory[i];
+      var historyItem = $(`<a href="#" class="list-group-item list-group-item-action">${location.name}</a>`);
+      historyItem.attr("data-city", location.name);
+      historyItem.attr("data-lat", location.latitude);
+      historyItem.attr("data-lng", location.longitude);
+      $("#search-history-list").append(historyItem);
+    }
   }
-  for (var i = 0; i <  searchHistory.length; i++) {
-    var location = searchHistory[i];
-    var historyItem = $(`<a href="#" class="list-group-item list-group-item-action">${location.name}</a>`);
-    historyItem.attr("data-city", location.name);
-    historyItem.attr("data-lat", location.latitude);
-    historyItem.attr("data-lng", location.longitude);
-    $("#search-history-list").append(historyItem);
-  }
-}
 
 // removes duplicates from arrray  
 function unique(arr) {
@@ -338,7 +378,6 @@ function capitalize(str) {
 function getIPLocation() {
   fetch("https://api.bigdatacloud.net/data/reverse-geocode-client").then(r => r.json()).then(data => {
     const location = { city: data.city, latitude: data.latitude, longitude: data.longitude };
-    console.log(data);
     sunStatus(location); 
     if (data.countryCode === "GB") {
       getCrimeData(location);
@@ -366,8 +405,6 @@ function addAllEventListeners() {
     var input = $("#city-input");
     var cityname = input.val().trim();
     if (cityname) {
-      cityname = capitalize(cityname);
-      // cityapi(cityname);
       getGeoData(cityname);
       input.val("");
     } else {
@@ -397,9 +434,11 @@ function addAllEventListeners() {
 
   // Updates data on search history item click
   $(document).on("click", "ul a", function () {
-    var historyItem = $(this).attr("data-name");
-    cityapi(historyItem);
-    getGeoData(historyItem);
+    var location = {city: this.dataset.city, latitude: this.dataset.lat, longitude: this.dataset.lng };
+    getCrimeData(location);
+    getpoliceforce(location);
+    $("#city-name").text(location.city);
+    
   });
 
   // Gets user exact location if allowed and updates data
@@ -412,9 +451,8 @@ function addAllEventListeners() {
         $("#city-name").text(data.city);
           getCrimeData(data);
           getpoliceforce(data);
-          console.log({data});
         } else {
-          showAlert("Crime data only availble for England.")
+          showAlert("Crime data only availble for Great Britain.")
         }
       });
     });

@@ -24,9 +24,9 @@
             <div class="col">
                 <form id="search" autocomplete="off">
                     <div class="input-group mb-3">
-                        <input id="city-input" type="text" class="form-control position-relative" placeholder="Search for a city..." aria-label="Search for a city" aria-describedby="basic-addon2">
+                        <input id="city-input" list="places" type="text" class="form-control position-relative" placeholder="Search for a city..." aria-label="Search for a city" autocomplete="off">
                         <svg data-bs-toggle="tooltip" data-bs-title="Locate me" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4"></circle><path d="M13,4.069V2h-2v2.069C7.389,4.522,4.523,7.389,4.069,11H2v2h2.069c0.454,3.611,3.319,6.478,6.931,6.931V22h2v-2.069 c3.611-0.453,6.478-3.319,6.931-6.931H22v-2h-2.069C19.478,7.389,16.611,4.522,13,4.069z M12,18c-3.309,0-6-2.691-6-6s2.691-6,6-6 s6,2.691,6,6S15.309,18,12,18z"></path></svg>
-                        <button type="submit" class="input-group-text" id="submit"><i class="bi bi-search"></i></fo>
+                        <button type="submit" class="input-group-text" id="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
                 <div class="accordion mb-3" id="search-history">
@@ -48,8 +48,8 @@
             <div class="col-lg-9">
                 <div class="cards px-2 mb-5">
                     <div class="card-body">
-                        <h3 class="card-title h2" id="city-name">Location Name</h3>
-                        <h4 class="card-subtitle mb-2 text-muted h6" id="city-police-force">Police force name</h4>
+                        <h3 class="card-title h2" id="city-name">UK City Crime Data</h3>
+                        <h4 class="card-subtitle mb-2 text-muted h6" id="city-police-force"></h4>
                         <p id="social" class="my-3">
                             <a id="fb" href="#" target="_blank" class="d-none bg-primary text-white me-2 p-2 rounded-circle" data-bs-toggle="tooltip" data-bs-title="Facebook"><i class="bi bi-facebook"></i></a>
                             <a id="tw" href="#" target="_blank" class="d-none bg-primary text-white me-2 p-2 rounded-circle" data-bs-toggle="tooltip" data-bs-title="Twitter"><i class="bi bi-twitter"></i></a>
@@ -58,8 +58,8 @@
                             <a id="fl" href="#" target="_blank" class="d-none bg-primary text-white me-2 p-2 rounded-circle" data-bs-toggle="tooltip" data-bs-title="Flickr">
                                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.1" viewBox="0 2 16 16" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M12.5 6.5c-1.103 0-2 0.897-2 2s0.897 2 2 2c1.103 0 2-0.897 2-2s-0.897-2-2-2zM12.5 5v0c1.933 0 3.5 1.567 3.5 3.5s-1.567 3.5-3.5 3.5-3.5-1.567-3.5-3.5c0-1.933 1.567-3.5 3.5-3.5zM0 8.5c0-1.933 1.567-3.5 3.5-3.5s3.5 1.567 3.5 3.5c0 1.933-1.567 3.5-3.5 3.5s-3.5-1.567-3.5-3.5z"></path></svg>
                             </a>
-                        </p>
-                        <p class="card-text" id="city-description">Location Description</p>
+                        </a>
+                        <p class="card-text" id="city-description">Search for a location in the UK to show crime data</p>
                     </div>
                 </div>
                 <!-- <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div> -->
@@ -134,6 +134,7 @@
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
     <!-- Chart.js -->
     <script src="./assets/scripts/chart.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
