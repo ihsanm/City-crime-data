@@ -16,6 +16,15 @@ function init() {
   renderhistoryLi();
 }
 
+let places = {};
+$("#city-input").on("keyup", (e) => {
+  if (e.target.value.length >= 2) {
+    if (!places.hasOwnProperty(e.target.value.toUpperCase())) {
+      autocompleteSearch(e.target.value);
+    }
+  }
+})
+
 // gets sunrise/sunset for location
 function sunStatus(location) {
   const {latitude, longitude} = location;
