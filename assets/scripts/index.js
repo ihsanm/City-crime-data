@@ -25,6 +25,21 @@ $("#city-input").on("keyup", (e) => {
   }
 })
 
+function autocompleteSearch(search) {
+  if (search) {
+    const token = Math.floor(Math.random() * 6000) + 1;
+    let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?region=uk&types=locality%7Csublocality%7Cpostal_code&language=en-GB&input=uk,${search}&key=${GM_API_KEY}&token=${token}`
+    url = "https://corsproxy.io/?" + encodeURIComponent(url);
+    fetch(url).then(r => r.json()).then(data => {
+      places = {};
+      if (data.predictions.length > 0) {
+        data.predictions.forEach(place => places[place.description.toUpperCase()] = [place.description, place.place_id]);
+      }
+      autocompleteList();
+    });
+  }
+} 
+
 // gets sunrise/sunset for location
 function sunStatus(location) {
   const {latitude, longitude} = location;
