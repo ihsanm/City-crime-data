@@ -9,9 +9,10 @@ init();
 
 // Set up app
 function init() {
+  const tooltipList = [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
   getIPLocation();
   addAllEventListeners();
-  unique(searchHistory);
+ // unique(searchHistory);
   renderhistoryLi();
 }
 
