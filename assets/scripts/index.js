@@ -134,23 +134,51 @@ function getpoliceforce(location){
        policeforce(policeforcetext);
     });
 }
-
 function policeforce(policeforcetext){
 	$.ajax({
         url: "https://data.police.uk/api/forces/" + policeforcetext,
         method: "GET",
     }).then(function (response) {
-        console.log(response);
         $("#city-police-force").text(response.name);
         const info = $("#city-description")
         info.empty();
-        if (response.description) info.html(response.description);
-        // info.append($(`<a href="${response.url}" target="_blank">${response.url}</a>`));
-
-        for( i=0 ; i< response.engagement_methods.length ; i++){
-        info.append($("<br>" + `<a class="links" href="${response.engagement_methods[i].url}" target="_blank">${response.engagement_methods[i].url}</a>`));
-        }
-        info.append("<br>" +"<b>" + " Telephone : " + response.telephone + "<b>")
+        if (response.description & response.description !== "<p>Force  profile</p>") { info.html(response.description); }
+        const links = [];
+        const fb = $("#fb");
+        const tw = $("#tw");
+        const li = $("#li");
+        const yt = $("#yt");
+        const fl = $("#fl");
+        $("#social > a").addClass("d-none");
+        if (response.url) { links.push(response.url + (response.url.endsWith("/") ? "" : "/")); }
+        response.engagement_methods.forEach(link => {
+          if (link.url /* && link.type !== "flickr" && link.title !== "flickr" */ && link.type !== "mobile") {
+            link.url = link.url + (link.url.endsWith("/") ? "" : "/");
+            if (link.type) { link.type = link.type.toLowerCase(); }
+            if (link.title) { link.title = link.title.toLowerCase(); }
+            if (link.type?.includes("facebook") || link.title?.includes("facebook")) {
+              fb.attr("href", link.url);
+              fb.removeClass("d-none");
+            } else if (link.type?.includes("twitter") || link.title?.includes("twitter")) {
+              tw.attr("href", link.url);
+              tw.removeClass("d-none");
+            } else if (link.type?.includes("linkedin") || link.title?.includes("linkedin")) {
+              li.attr("href", link.url);
+              li.removeClass("d-none");
+            } else if (link.type?.includes("youtube") || link.title?.includes("youtube")) {
+              if (link.url === "http://www.youtube.com/staffordshirepolice/") { link.url = "https://www.youtube.com/@staffordshirepolice5665/" }
+              yt.attr("href", link.url);
+              yt.removeClass("d-none");
+            } else if (link.type?.includes("flickr") || link.title?.includes("flickr")) {
+              fl.attr("href", link.url);
+              fl.removeClass("d-none");
+            } else if (!links.includes(link.url)) {
+              links.push(link.url);
+            }
+          }
+        });
+        links.forEach(link => info.append($(`<br><a class="links" href="${link}" target="_blank">${link}</a>`)));
+        if (response.telephone) { info.append("<br>" + "<b>" + " Telephone : " + response.telephone + "<b>"); }
     });
 }
 // Function that accepts an object containing a latitude and longitude
