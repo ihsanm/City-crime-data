@@ -40,6 +40,20 @@ function autocompleteSearch(search) {
   }
 } 
 
+function addHistory(location) {
+  searchHistory.forEach((item, idx) => {
+    if (item.name === location.name) {
+      searchHistory.splice(idx,1);
+    }
+  });
+  searchHistory.unshift(location);
+  while (searchHistory.length > 10) { 
+    searchHistory.pop(); 
+  }
+  localStorage.setItem("search", JSON.stringify(searchHistory));
+  renderhistoryLi();
+}
+
 // gets sunrise/sunset for location
 function sunStatus(location) {
   const {latitude, longitude} = location;
