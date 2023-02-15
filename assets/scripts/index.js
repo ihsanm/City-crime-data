@@ -275,19 +275,23 @@ function cityapi(cityname){
 }
 
 // Ouputs search history to screen
+
 function renderhistoryLi() {
-    $("#search-history-list").empty();
-    if (searchHistory.length > 0) {
-      $("#clear-history").removeClass("hidden");
-    } else {
-      $("#clear-history").addClass("hidden");
-    }
-    for (var i = 0; i < searchHistory.length; i++) {
-      var historyItem = $(`<a href="#" class="list-group-item list-group-item-action">${searchHistory[i]}</a>`);
-      historyItem.attr("data-name", searchHistory[i]);
-      $("#search-history-list").append(historyItem);
-    }
+  $("#search-history-list").empty();
+  if (searchHistory.length > 0) {
+    $("#clear-history").removeClass("hidden");
+  } else {
+    $("#clear-history").addClass("hidden");
   }
+  for (var i = 0; i <  searchHistory.length; i++) {
+    var location = searchHistory[i];
+    var historyItem = $(`<a href="#" class="list-group-item list-group-item-action">${location.name}</a>`);
+    historyItem.attr("data-city", location.name);
+    historyItem.attr("data-lat", location.latitude);
+    historyItem.attr("data-lng", location.longitude);
+    $("#search-history-list").append(historyItem);
+  }
+}
 
 // removes duplicates from arrray  
 function unique(arr) {
