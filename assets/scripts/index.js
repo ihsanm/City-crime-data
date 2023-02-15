@@ -9,9 +9,48 @@ init();
 
 // Set up app
 function init() {
+  const tooltipList = [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
   getIPLocation();
   addAllEventListeners();
-  unique(searchHistory);
+ // unique(searchHistory);
+  renderhistoryLi();
+}
+
+let places = {};
+$("#city-input").on("keyup", (e) => {
+  if (e.target.value.length >= 2) {
+    if (!places.hasOwnProperty(e.target.value.toUpperCase())) {
+      autocompleteSearch(e.target.value);
+    }
+  }
+})
+
+function autocompleteSearch(search) {
+  if (search) {
+    const token = Math.floor(Math.random() * 6000) + 1;
+    let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?region=uk&types=locality%7Csublocality%7Cpostal_code&language=en-GB&input=uk,${search}&key=${GM_API_KEY}&token=${token}`
+    url = "https://corsproxy.io/?" + encodeURIComponent(url);
+    fetch(url).then(r => r.json()).then(data => {
+      places = {};
+      if (data.predictions.length > 0) {
+        data.predictions.forEach(place => places[place.description.toUpperCase()] = [place.description, place.place_id]);
+      }
+      autocompleteList();
+    });
+  }
+} 
+
+function addHistory(location) {
+  searchHistory.forEach((item, idx) => {
+    if (item.name === location.name) {
+      searchHistory.splice(idx,1);
+    }
+  });
+  searchHistory.unshift(location);
+  while (searchHistory.length > 10) { 
+    searchHistory.pop(); 
+  }
+  localStorage.setItem("search", JSON.stringify(searchHistory));
   renderhistoryLi();
 }
 
@@ -133,23 +172,51 @@ function getpoliceforce(location){
        policeforce(policeforcetext);
     });
 }
-
 function policeforce(policeforcetext){
 	$.ajax({
         url: "https://data.police.uk/api/forces/" + policeforcetext,
         method: "GET",
     }).then(function (response) {
-        console.log(response);
         $("#city-police-force").text(response.name);
         const info = $("#city-description")
         info.empty();
-        if (response.description) info.html(response.description);
-        // info.append($(`<a href="${response.url}" target="_blank">${response.url}</a>`));
-
-        for( i=0 ; i< response.engagement_methods.length ; i++){
-        info.append($("<br>" + `<a class="links" href="${response.engagement_methods[i].url}" target="_blank">${response.engagement_methods[i].url}</a>`));
-        }
-        info.append("<br>" +"<b>" + " Telephone : " + response.telephone + "<b>")
+        if (response.description & response.description !== "<p>Force  profile</p>") { info.html(response.description); }
+        const links = [];
+        const fb = $("#fb");
+        const tw = $("#tw");
+        const li = $("#li");
+        const yt = $("#yt");
+        const fl = $("#fl");
+        $("#social > a").addClass("d-none");
+        if (response.url) { links.push(response.url + (response.url.endsWith("/") ? "" : "/")); }
+        response.engagement_methods.forEach(link => {
+          if (link.url /* && link.type !== "flickr" && link.title !== "flickr" */ && link.type !== "mobile") {
+            link.url = link.url + (link.url.endsWith("/") ? "" : "/");
+            if (link.type) { link.type = link.type.toLowerCase(); }
+            if (link.title) { link.title = link.title.toLowerCase(); }
+            if (link.type?.includes("facebook") || link.title?.includes("facebook")) {
+              fb.attr("href", link.url);
+              fb.removeClass("d-none");
+            } else if (link.type?.includes("twitter") || link.title?.includes("twitter")) {
+              tw.attr("href", link.url);
+              tw.removeClass("d-none");
+            } else if (link.type?.includes("linkedin") || link.title?.includes("linkedin")) {
+              li.attr("href", link.url);
+              li.removeClass("d-none");
+            } else if (link.type?.includes("youtube") || link.title?.includes("youtube")) {
+              if (link.url === "http://www.youtube.com/staffordshirepolice/") { link.url = "https://www.youtube.com/@staffordshirepolice5665/" }
+              yt.attr("href", link.url);
+              yt.removeClass("d-none");
+            } else if (link.type?.includes("flickr") || link.title?.includes("flickr")) {
+              fl.attr("href", link.url);
+              fl.removeClass("d-none");
+            } else if (!links.includes(link.url)) {
+              links.push(link.url);
+            }
+          }
+        });
+        links.forEach(link => info.append($(`<br><a class="links" href="${link}" target="_blank">${link}</a>`)));
+        if (response.telephone) { info.append("<br>" + "<b>" + " Telephone : " + response.telephone + "<b>"); }
     });
 }
 // Function that accepts an object containing a latitude and longitude
@@ -208,19 +275,23 @@ function cityapi(cityname){
 }
 
 // Ouputs search history to screen
+
 function renderhistoryLi() {
-    $("#search-history-list").empty();
-    if (searchHistory.length > 0) {
-      $("#clear-history").removeClass("hidden");
-    } else {
-      $("#clear-history").addClass("hidden");
-    }
-    for (var i = 0; i < searchHistory.length; i++) {
-      var historyItem = $(`<a href="#" class="list-group-item list-group-item-action">${searchHistory[i]}</a>`);
-      historyItem.attr("data-name", searchHistory[i]);
-      $("#search-history-list").append(historyItem);
-    }
+  $("#search-history-list").empty();
+  if (searchHistory.length > 0) {
+    $("#clear-history").removeClass("hidden");
+  } else {
+    $("#clear-history").addClass("hidden");
   }
+  for (var i = 0; i <  searchHistory.length; i++) {
+    var location = searchHistory[i];
+    var historyItem = $(`<a href="#" class="list-group-item list-group-item-action">${location.name}</a>`);
+    historyItem.attr("data-city", location.name);
+    historyItem.attr("data-lat", location.latitude);
+    historyItem.attr("data-lng", location.longitude);
+    $("#search-history-list").append(historyItem);
+  }
+}
 
 // removes duplicates from arrray  
 function unique(arr) {
