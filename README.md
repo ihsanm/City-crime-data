@@ -1,10 +1,14 @@
 # City Crime Data
+
 ## User story
+
+```
 As a user
-* I want to find the crime data of my city or other cities. 
-* I want to know the various types of crime  and the data through the chart
-* I also want to  find the police information of the city.
-* SO THAT I can find out about the safety of the city where I live or travel and etc.
+- I want to find the crime data of my city or other cities. 
+- I want to know the various types of crime  and the data through the chart
+- I also want to  find the police information of the city.
+- SO THAT I can find out about the safety of the city where I live or travel and etc.
+```
 
 ## Our motivation for development
 
@@ -31,20 +35,27 @@ As a user
   * Uses a [Reverse Geocoding API](https://api.bigdatacloud.net/data/reverse-geocode-client) to get the approximate user location by IP address
   * Uses https://api.sunrise-sunset.org to calculate the sun rise/sunset for a given location
 
- Though these the site:
- * Finds the crime data and use a spider graph to display crime in given city.
- * Previous searches will be stored in local storage and can be revisited.
- * A clear search history button which will remove all previous searches.
+ Using these the site:
+ * Finds the crime data and uses graphs and tables to display crime statistics in given city.
+    * Presents an autocomplete list as the user types
+    * Also retrieves information about the police force for the locality
+ * Stores previous searches in a list which can be clicked to be revisited.
+    * A clear search history button removes all previous searches.
+ * Switches theme based on user location (day/night) 
  
- ## The screenshots
+ ## App screenshots
 ![image of screenshot1](./screenshots/1.png)
 ![image of screenshot2](./screenshots/2.png)
 ![image of screenshot3](./screenshots/3.png)
 ![image of screenshot4](./screenshots/4.png)
 
 
- ### Bonus feature
- * MAPS!
+ ### Future Development
+ * Implement a map to show where crimes had occurred
+ * Improve police information shown
+ * Add more themes depending on time of day
+ * Broaden app scope so crime data from multiple countries can be found/visualised
+ * Loading animations while APIs are refreshing data.
  
  ## Github URL: https://github.com/ihsanm/City-crime-data
  ## Deployed Site: https://ihsanm.github.io/City-crime-data/
