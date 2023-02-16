@@ -1,31 +1,33 @@
+// ===========================
+// Global constants/variables
+// ===========================
 const SUNRISE_SUNSET_API_KEY = "your_sunrise_sunset_api_key_here";
 const OPEN_WEATHER_MAP_API_KEY = "3a95d1ed9bf689469735b199ebeae609";
 const GM_API_KEY = "AIzaSyCEgJmAA89XQmfs9fR9W10QO0dRudLCv5U"
-let radarChart, barChart;
-let crimeData = [];
-// gets city name from text input and puts it in a variable and put into localStorage
-var searchHistory = JSON.parse(localStorage.getItem("search")) || [];
+let radarChart, barChart; // Chart references
+let crimeData = []; // Holds crime data summary
+let places = {}; // Stores places from google api for autocomplete
+let searchHistory = JSON.parse(localStorage.getItem("search")) || []; // Gets search history from localStorage if present
+let count = 0; // Track API fetch state
 
-init();
+init(); // Let's go!!!
 
 // Set up app
 function init() {
+  // Enables tooltips:
   const tooltipList = [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+  
   getIPLocation();
   addAllEventListeners();
-  // unique(searchHistory);
   renderhistoryLi();
 }
 
-let places = {};
-$("#city-input").on("keyup", (e) => {
-  if (e.target.value.length >= 2) {
-    if (!places.hasOwnProperty(e.target.value.toUpperCase())) {
-      autocompleteSearch(e.target.value);
-    }
-  }
-})
 
+// ==================
+// Autocomplete list
+// ==================
+
+// Loops over all the locations retrieved from google api and adds to an array to show an autocomplete list
 function autocompleteList() {
   const array = [];
   Object.values(places).forEach(place => array.push(place[0]));
@@ -34,9 +36,10 @@ function autocompleteList() {
   });
 }
 
+// Queries google API to get a list of matched locations in the UK based on search string
 function autocompleteSearch(search) {
   if (search) {
-    const token = Math.floor(Math.random() * 6000) + 1;
+    const token = Math.floor(Math.random() * 6000) + 1; //Random token for billing session.
     let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?region=uk&types=locality|sublocality|postal_code&language=en-GB&input=uk,${search}&key=${GM_API_KEY}&token=${token}`
     url = "https://corsproxy.io/?" + encodeURIComponent(url);
     fetch(url).then(r => r.json()).then(data => {
@@ -44,11 +47,13 @@ function autocompleteSearch(search) {
       if (data.predictions.length > 0) {
         data.predictions.forEach(place => places[place.description.toUpperCase()] = [place.description, place.place_id]);
       }
+      // Add matches to autocomplete list
       autocompleteList();
     });
   }
 } 
 
+// Gets lat/lng for an autocomplete item using a google "place id"
 function getPlaceLocation(name) {
   const id = places[name][1] || "";
   if (id.length = 0) { 
@@ -67,6 +72,12 @@ function getPlaceLocation(name) {
   });
 }
 
+
+// ===============
+// Search History
+// ===============
+
+// Adds supplied location to the search history array and updates list
 function addHistory(location) {
     searchHistory.forEach((item, idx) => {
       if (item.name === location.name) {
@@ -81,7 +92,29 @@ function addHistory(location) {
     renderhistoryLi();
 }
 
-// gets sunrise/sunset for location
+// Ouputs search history to screen
+function renderhistoryLi() {
+  $("#search-history-list").empty();
+  if (searchHistory.length > 0) {
+    $("#clear-history").removeClass("hidden");
+  } else {
+    $("#clear-history").addClass("hidden");
+  }
+  for (var i = 0; i <  searchHistory.length; i++) {
+    var location = searchHistory[i];
+    var historyItem = $(`<a href="#" class="list-group-item list-group-item-action">${location.name}</a>`);
+    historyItem.attr("data-city", location.name);
+    historyItem.attr("data-lat", location.latitude);
+    historyItem.attr("data-lng", location.longitude);
+    $("#search-history-list").append(historyItem);
+  }
+}
+
+// ================================
+// Sunrise/sunset for theme toggle
+// ================================
+
+// gets sunrise/sunset for location and sets theme accordingly
 function sunStatus(location) {
   const {latitude, longitude} = location;
   const date = new Date();
@@ -98,15 +131,34 @@ function sunStatus(location) {
       const currentTime = new Date();
 
       if (currentTime >= sunrise && currentTime <= sunset) {
-        toggleTheme("light");
+        toggleTheme("light"); // it's day time!
       } else {
-        toggleTheme("dark");
+        toggleTheme("dark"); // Night time zzzz. 
       }
     })
     .catch((error) => console.error(error));
 }
 
-// updates crime graph
+
+// ====================================
+// Display crime data - charts & table
+// ====================================
+
+// Updates crime data table
+function updateTable(data) {
+  data = data || crimeData;
+  const tbl = $("tbody");
+  tbl.empty();
+  data.forEach((item, i) => {
+    const rw = $("<tr>");
+    rw.append($(`<th scope="row">${(i + 1)}</th>`));
+    rw.append($(`<td>${item.category}</td>`));
+    rw.append($(`<td>${item.count}</td>`));
+    tbl.append(rw);
+  });
+}
+
+// updates crime graphs
 function updateCharts(data) {
   data = data || crimeData;
   if (radarChart) radarChart.destroy();
@@ -135,29 +187,31 @@ function updateCharts(data) {
     barChart.options.scales.x.grid.color = clr;
     barChart.options.scales.y.grid.color = clr;
   }
-  $("#bar-graph").css("height", Math.max(50, 50 * data.length) + "px");
+  // Force chart to resize based on number of categories
+  $("#bar-graph").css("height", Math.max(50, 50 * data.length) + "px"); 
   $("#bar-graph").css("width", "100%");
 }
 
+// Helper to create a new chart instance from supplied data array
 function createChart(data, type) {
+  const isRadar = type === "radar";
   const chart = new Chart(document.getElementById(type + "-graph"), {
     type: type,
     data: {
       labels: data.map((row) => row.category),
       datasets: [
         {
-          label: "Crime frequency",
+          label: "Top Reported Crimes",
           data: data.map((row) => row.count),
         },
       ],
     },
-    options: { maintainAspectRatio: (type === "bar" ? false : true), indexAxis: "y", plugins: { legend: { display: false } } },
+    options: { maintainAspectRatio: isRadar, indexAxis: "y", plugins: { legend: { display: isRadar } } },
   });
-  // console.log(data.map((row) => row.category.replace(/( \S+) /g, "$1\n")));
   return chart
 }
 
-// Clear chats if they exist
+// Clear charts if they exist
 function destroyCharts() {
     if (radarChart) { radarChart.destroy(); }
     if (radarChart) { barChart.destroy(); }
@@ -165,7 +219,11 @@ function destroyCharts() {
     barChart = null;
   }
 
-// Gets lat / lon from searched city
+// ============
+// Geolocation
+// ============
+
+// Gets lat / lng from searched city
 function getGeoData(city) {
     city = city.toUpperCase();
     if (places.hasOwnProperty(city)) {
@@ -179,7 +237,7 @@ function getGeoData(city) {
       if (!data.length) {
           showAlert("Location not found")
         } else {
-          // Success! Update city name and add to search history
+          // Success! Update city name, add to search history and pass off to the data updating functions
           let location = data[0];
           $("#city-name").text(location.name);
           location = { name: location.name, latitude: location.lat,longitude: location.lon };
@@ -190,7 +248,26 @@ function getGeoData(city) {
     });
 }
 
+// Gets lat/lng from user IP address
+function getIPLocation() {
+  fetch("https://api.bigdatacloud.net/data/reverse-geocode-client").then(r => r.json()).then(data => {
+    const location = { city: data.city, latitude: data.latitude, longitude: data.longitude };
+    sunStatus(location); 
+    if (data.countryCode === "GB") {
+      getCrimeData(location);
+      getpoliceforce(location);
+      $("#city-name").text(data.city);
+    }
+  })
+}
+
+
+// ==================
+// Police force info
+// ==================
+
 // 2 functions to get the police force from lat and long and the other to give details about the police force
+// Gets the police force id
 function getpoliceforce(location){
 	$.ajax({
         url: "https://data.police.uk/api/locate-neighbourhood?q="+location.latitude +","+ location.longitude,
@@ -201,6 +278,7 @@ function getpoliceforce(location){
     });
 }
 
+// Uses force id to get force info
 function policeforce(policeforcetext){
 	$.ajax({
         url: "https://data.police.uk/api/forces/" + policeforcetext,
@@ -209,7 +287,8 @@ function policeforce(policeforcetext){
         $("#city-police-force").text(response.name);
         const info = $("#city-description")
         info.empty();
-        if (response.description & response.description !== "<p>Force  profile</p>") { info.html(response.description); }
+        if (response.description && response.description !== "<p>Force  profile</p>") { info.html(response.description); }
+        // Update social media buttons and display any additional links
         const links = [];
         const fb = $("#fb");
         const tw = $("#tw");
@@ -219,7 +298,7 @@ function policeforce(policeforcetext){
         $("#social > a").addClass("d-none");
         if (response.url) { links.push(response.url + (response.url.endsWith("/") ? "" : "/")); }
         response.engagement_methods.forEach(link => {
-          if (link.url /* && link.type !== "flickr" && link.title !== "flickr" */ && link.type !== "mobile") {
+          if (link.url && link.type !== "mobile") {
             link.url = link.url + (link.url.endsWith("/") ? "" : "/");
             if (link.type) { link.type = link.type.toLowerCase(); }
             if (link.title) { link.title = link.title.toLowerCase(); }
@@ -233,6 +312,7 @@ function policeforce(policeforcetext){
               li.attr("href", link.url);
               li.removeClass("d-none");
             } else if (link.type?.includes("youtube") || link.title?.includes("youtube")) {
+              // Fix for staffordshire police giving wrong youtube address
               if (link.url === "http://www.youtube.com/staffordshirepolice/") { link.url = "https://www.youtube.com/@staffordshirepolice5665/" }
               yt.attr("href", link.url);
               yt.removeClass("d-none");
@@ -246,12 +326,19 @@ function policeforce(policeforcetext){
         });
         links.forEach(link => info.append($(`<br><a class="links" href="${link}" target="_blank">${link}</a>`)));
         if (response.telephone) { info.append("<br>" + "<b>" + " Telephone : " + response.telephone + "<b>"); }
+        fetchComplete();
     });
 }
 
-//alternative method for fecthing crime data by nearest neighbourhood
+
+// =================
+// Fetch Crime data
+// =================
+
+// alternative method for fecthing crime data by nearest neighbourhood
+// not currently used but could be an alternative for the future
 function neighbourhoodCrime(location) {
-  let url = `https://data.police.uk/api/locate-neighbourhood?q=${location.latitude},${location.longitude}` //&date=2017-01
+  let url = `https://data.police.uk/api/locate-neighbourhood?q=${location.latitude},${location.longitude}`
   $.ajax({ url, method: "GET" }).then(data => {
     url = `https://data.police.uk/api/${data.force}/${data.neighbourhood}`;
     $.ajax({ url, method: "GET" }).then(data => {
@@ -268,13 +355,14 @@ function neighbourhoodCrime(location) {
         crimeData.sort((a, b) => b.count - a.count);
         updateCharts();
         updateTable();
+        fetchComplete();
       });
     });
   });
 }
 
-// Function that accepts an object containing a latitude and longitude
-// in the format obj.lat and obj.lon
+// Function that accepts an object containing a latitude and longitude in the
+// format obj.latitude and obj.longitude and retrieves crime data for that location
 function getCrimeData(location) {
     crimeData = [];  
     if (!location || !location.latitude) {
@@ -282,7 +370,7 @@ function getCrimeData(location) {
       $("tbody").empty();
       return;
     }
-    let url = `https://data.police.uk/api/crimes-street/all-crime?lat=${location.latitude}&lng=${location.longitude}` //&date=2017-01
+    let url = `https://data.police.uk/api/crimes-street/all-crime?lat=${location.latitude}&lng=${location.longitude}`
     // neighbourhoodCrime(location); return;
     fetch(url)
     .then(res => res.json())
@@ -298,42 +386,16 @@ function getCrimeData(location) {
         crimeData.sort((a, b) => b.count - a.count);
         updateCharts();
         updateTable();
+        fetchComplete();
     });
 }
 
-// Updates crime data table
-function updateTable(data) {
-  data = data || crimeData;
-  const tbl = $("tbody");
-  tbl.empty();
-  data.forEach((item, i) => {
-    const rw = $("<tr>");
-    rw.append($(`<th scope="row">${(i + 1)}</th>`));
-    rw.append($(`<td>${item.category}</td>`));
-    rw.append($(`<td>${item.count}</td>`));
-    tbl.append(rw);
-  });
-}
 
-// Ouputs search history to screen
-function renderhistoryLi() {
-    $("#search-history-list").empty();
-    if (searchHistory.length > 0) {
-      $("#clear-history").removeClass("hidden");
-    } else {
-      $("#clear-history").addClass("hidden");
-    }
-    for (var i = 0; i <  searchHistory.length; i++) {
-      var location = searchHistory[i];
-      var historyItem = $(`<a href="#" class="list-group-item list-group-item-action">${location.name}</a>`);
-      historyItem.attr("data-city", location.name);
-      historyItem.attr("data-lat", location.latitude);
-      historyItem.attr("data-lng", location.longitude);
-      $("#search-history-list").append(historyItem);
-    }
-  }
+// ===========================
+// Helper (utility) functions
+// ===========================
 
-// removes duplicates from arrray  
+// removes duplicates from a 1d arrray  
 function unique(arr) {
   return [...new Set(arr)];
 }
@@ -366,6 +428,7 @@ function toggleTheme(theme) {
   }
 }
 
+// Capitalizes every word in a string
 function capitalize(str) {
   if (!str) return;
   str = str.toLowerCase();
@@ -375,29 +438,42 @@ function capitalize(str) {
   return str.trim();
 }
 
-function getIPLocation() {
-  fetch("https://api.bigdatacloud.net/data/reverse-geocode-client").then(r => r.json()).then(data => {
-    const location = { city: data.city, latitude: data.latitude, longitude: data.longitude };
-    sunStatus(location); 
-    if (data.countryCode === "GB") {
-      getCrimeData(location);
-      getpoliceforce(location);
-      $("#city-name").text(data.city);
-    }
-  })
-}
-
+// Clears all currently displayed data
 function clearData() {
   $("#city-police-force").empty();
   $("#city-description").empty();
+  $("#social > a").addClass("d-none");
   $("tbody").empty();
   destroyCharts();
 }
+
+// Shows loading modal
+function doLoading() {
+  count = 0;
+  $(".loading").removeClass("d-none");
+  setTimeout(()=>$(".loading").addClass("d-none"), 2500);
+}
+
+// Hides loading modal when fetches complete
+function fetchComplete() {
+  count++;
+  if (count === 2) { $(".loading").addClass("d-none") }
+}
+
 
 // ================
 // Event listeners
 // ================
 function addAllEventListeners() {
+
+  // Presents an autocomplete list as the user types
+  $("#city-input").on("keyup", (e) => {
+    if (e.target.value.length >= 2) {
+      if (!places.hasOwnProperty(e.target.value.toUpperCase())) {
+        autocompleteSearch(e.target.value);
+      }
+    }
+  })
 
   // Search for city on submit button click
   $("#search").on("submit", function (event) {
@@ -405,6 +481,7 @@ function addAllEventListeners() {
     var input = $("#city-input");
     var cityname = input.val().trim();
     if (cityname) {
+      doLoading();
       getGeoData(cityname);
       input.val("");
     } else {
@@ -434,11 +511,11 @@ function addAllEventListeners() {
 
   // Updates data on search history item click
   $(document).on("click", "ul a", function () {
-    var location = {city: this.dataset.city, latitude: this.dataset.lat, longitude: this.dataset.lng };
+    let location = {city: this.dataset.city, latitude: this.dataset.lat, longitude: this.dataset.lng };
+    doLoading();
     getCrimeData(location);
     getpoliceforce(location);
     $("#city-name").text(location.city);
-    
   });
 
   // Gets user exact location if allowed and updates data
@@ -448,7 +525,8 @@ function addAllEventListeners() {
       .then(r => r.json())
       .then(data => {
         if (data.countryCode === "GB") {
-        $("#city-name").text(data.city);
+          doLoading();
+          $("#city-name").text(data.city);
           getCrimeData(data);
           getpoliceforce(data);
         } else {
@@ -462,10 +540,12 @@ function addAllEventListeners() {
   document.querySelector("#alert").addEventListener("click", e => document.querySelector("#alert").close() );
 }
 
+
 // =============
 // Alert modal
 // =============
-// Shows a modal alert
+
+// Shows a modal alert with the supplied string as text.
 function showAlert(message) {
   if (!message || !message.trim()) { message = "Alert!" }
   document.querySelector("#alertMessage").textContent = message;
