@@ -15,6 +15,22 @@
     visibility: hidden;
 }
 
+.loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    background-color: rgba(128, 128, 128, 0.7);
+    z-index: 999;
+}
+
+.loading .spinner-border {
+    height: 100px;
+    width: 100px;
+    border-width: 10px;
+}
+
+
 body {
     transition: all 1s ease;
 }

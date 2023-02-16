@@ -7,7 +7,8 @@ const GM_API_KEY = "AIzaSyCEgJmAA89XQmfs9fR9W10QO0dRudLCv5U"
 let radarChart, barChart; // Chart references
 let crimeData = []; // Holds crime data summary
 let places = {}; // Stores places from google api for autocomplete
-var searchHistory = JSON.parse(localStorage.getItem("search")) || []; // Gets search history from localStorage if present
+let searchHistory = JSON.parse(localStorage.getItem("search")) || []; // Gets search history from localStorage if present
+let count = 0; // Track API fetch state
 
 init(); // Let's go!!!
 
@@ -15,7 +16,7 @@ init(); // Let's go!!!
 function init() {
   // Enables tooltips:
   const tooltipList = [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-
+  
   getIPLocation();
   addAllEventListeners();
   renderhistoryLi();
@@ -193,18 +194,19 @@ function updateCharts(data) {
 
 // Helper to create a new chart instance from supplied data array
 function createChart(data, type) {
+  const isRadar = type === "radar";
   const chart = new Chart(document.getElementById(type + "-graph"), {
     type: type,
     data: {
       labels: data.map((row) => row.category),
       datasets: [
         {
-          label: "Crime frequency",
+          label: "Top Reported Crimes",
           data: data.map((row) => row.count),
         },
       ],
     },
-    options: { maintainAspectRatio: (type === "bar" ? false : true), indexAxis: "y", plugins: { legend: { display: false } } },
+    options: { maintainAspectRatio: isRadar, indexAxis: "y", plugins: { legend: { display: isRadar } } },
   });
   return chart
 }
@@ -324,6 +326,7 @@ function policeforce(policeforcetext){
         });
         links.forEach(link => info.append($(`<br><a class="links" href="${link}" target="_blank">${link}</a>`)));
         if (response.telephone) { info.append("<br>" + "<b>" + " Telephone : " + response.telephone + "<b>"); }
+        fetchComplete();
     });
 }
 
@@ -352,6 +355,7 @@ function neighbourhoodCrime(location) {
         crimeData.sort((a, b) => b.count - a.count);
         updateCharts();
         updateTable();
+        fetchComplete();
       });
     });
   });
@@ -382,6 +386,7 @@ function getCrimeData(location) {
         crimeData.sort((a, b) => b.count - a.count);
         updateCharts();
         updateTable();
+        fetchComplete();
     });
 }
 
@@ -442,6 +447,19 @@ function clearData() {
   destroyCharts();
 }
 
+// Shows loading modal
+function doLoading() {
+  count = 0;
+  $(".loading").removeClass("d-none");
+  setTimeout(()=>$(".loading").addClass("d-none"), 2500);
+}
+
+// Hides loading modal when fetches complete
+function fetchComplete() {
+  count++;
+  if (count === 2) { $(".loading").addClass("d-none") }
+}
+
 
 // ================
 // Event listeners
@@ -463,6 +481,7 @@ function addAllEventListeners() {
     var input = $("#city-input");
     var cityname = input.val().trim();
     if (cityname) {
+      doLoading();
       getGeoData(cityname);
       input.val("");
     } else {
@@ -492,11 +511,11 @@ function addAllEventListeners() {
 
   // Updates data on search history item click
   $(document).on("click", "ul a", function () {
-    var location = {city: this.dataset.city, latitude: this.dataset.lat, longitude: this.dataset.lng };
+    let location = {city: this.dataset.city, latitude: this.dataset.lat, longitude: this.dataset.lng };
+    doLoading();
     getCrimeData(location);
     getpoliceforce(location);
     $("#city-name").text(location.city);
-    
   });
 
   // Gets user exact location if allowed and updates data
@@ -506,7 +525,8 @@ function addAllEventListeners() {
       .then(r => r.json())
       .then(data => {
         if (data.countryCode === "GB") {
-        $("#city-name").text(data.city);
+          doLoading();
+          $("#city-name").text(data.city);
           getCrimeData(data);
           getpoliceforce(data);
         } else {
