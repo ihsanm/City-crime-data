@@ -65,6 +65,23 @@ h1 {
     cursor: pointer;
 }
 
+#search-history-list a:hover > i {
+    display: inline !important;
+    color: rgb(212, 0, 0);
+    position: absolute;
+    right: 10px;
+    top:50%;
+    transform: translateY(-50%);
+}
+
+#social a {
+    padding-inline: 10px !important;
+}
+
+#social a:hover {
+    opacity: 0.8;
+}
+
 #radar-graph {
     max-height: 500px;
 }
