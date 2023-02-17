@@ -20,6 +20,10 @@ function init() {
   getIPLocation();
   addAllEventListeners();
   renderhistoryLi();
+
+  if (window.innerWidth > 991) {
+    $('#collapse-history')[0].click();
+  }
 }
 
 
@@ -100,13 +104,24 @@ function renderhistoryLi() {
   } else {
     $("#clear-history").addClass("hidden");
   }
-  for (var i = 0; i <  searchHistory.length; i++) {
-    var location = searchHistory[i];
-    var historyItem = $(`<a href="#" class="list-group-item list-group-item-action">${location.name}</a>`);
-    historyItem.attr("data-city", location.name);
+  for (let i = 0; i <  searchHistory.length; i++) {
+    const location = searchHistory[i];
+    const historyItem = $(`<a href="#" class="d-relative list-group-item list-group-item-action">${location.name}<i class="d-none bi bi-x-square"></i></a>`);
+    historyItem.attr("data-name", location.name);
     historyItem.attr("data-lat", location.latitude);
     historyItem.attr("data-lng", location.longitude);
     $("#search-history-list").append(historyItem);
+  }
+}
+
+// Deletes the history item with the specified name
+function deleteHistoryItem(historyItemName) {
+  for (let i = 0; i < searchHistory.length; i++) {
+    if (searchHistory[i].name === historyItemName) {
+      searchHistory.splice(i,1);
+      renderhistoryLi();
+      break;
+    }
   }
 }
 
@@ -149,13 +164,18 @@ function updateTable(data) {
   data = data || crimeData;
   const tbl = $("tbody");
   tbl.empty();
-  data.forEach((item, i) => {
-    const rw = $("<tr>");
-    rw.append($(`<th scope="row">${(i + 1)}</th>`));
-    rw.append($(`<td>${item.category}</td>`));
-    rw.append($(`<td>${item.count}</td>`));
-    tbl.append(rw);
-  });
+  if (data.length > 0) {
+    data.forEach((item, i) => {
+      const rw = $("<tr>");
+      rw.append($(`<th scope="row">${(i + 1)}</th>`));
+      rw.append($(`<td>${item.category}</td>`));
+      rw.append($(`<td>${item.count}</td>`));
+      tbl.append(rw);
+    });
+  } else {
+    $("tbody").append($("<tr><td colspan='3'>No crime data reported for location.</td></tr>"));
+    $("#table-tab")[0].click();
+  }
 }
 
 // updates crime graphs
@@ -190,6 +210,7 @@ function updateCharts(data) {
   // Force chart to resize based on number of categories
   $("#bar-graph").css("height", Math.max(50, 50 * data.length) + "px"); 
   $("#bar-graph").css("width", "100%");
+  if (data.length < 3 && $("#radar-tab-pane").hasClass("show")) { $("#bar-tab")[0].click(); }
 }
 
 // Helper to create a new chart instance from supplied data array
@@ -251,9 +272,10 @@ function getGeoData(city) {
 // Gets lat/lng from user IP address
 function getIPLocation() {
   fetch("https://api.bigdatacloud.net/data/reverse-geocode-client").then(r => r.json()).then(data => {
-    const location = { city: data.city, latitude: data.latitude, longitude: data.longitude };
+    const location = { name: data.city, latitude: data.latitude, longitude: data.longitude };
     sunStatus(location); 
-    if (data.countryCode === "GB") {
+    console.log(data);
+    if (data.countryCode === "GB" && data.principalSubdivisionCode === "GB-ENG") {
       getCrimeData(location);
       getpoliceforce(location);
       $("#city-name").text(data.city);
@@ -272,6 +294,12 @@ function getpoliceforce(location){
 	$.ajax({
         url: "https://data.police.uk/api/locate-neighbourhood?q="+location.latitude +","+ location.longitude,
         method: "GET",
+        statusCode: {
+          404: function() { 
+            fetchComplete();
+            showAlert("No data available" + (location.name ? " for " + location.name: ""));
+          },
+        },
     }).then(function (response) {
         const policeforcetext = response.force;
        policeforce(policeforcetext);
@@ -451,7 +479,7 @@ function clearData() {
 function doLoading() {
   count = 0;
   $(".loading").removeClass("d-none");
-  setTimeout(()=>$(".loading").addClass("d-none"), 2500);
+  setTimeout(() => $(".loading").addClass("d-none"), 2500);
 }
 
 // Hides loading modal when fetches complete
@@ -478,8 +506,9 @@ function addAllEventListeners() {
   // Search for city on submit button click
   $("#search").on("submit", function (event) {
     event.preventDefault();
-    var input = $("#city-input");
-    var cityname = input.val().trim();
+    clearData();
+    const input = $("#city-input");
+    const cityname = input.val().trim();
     if (cityname) {
       doLoading();
       getGeoData(cityname);
@@ -510,12 +539,20 @@ function addAllEventListeners() {
   });
 
   // Updates data on search history item click
-  $(document).on("click", "ul a", function () {
-    let location = {city: this.dataset.city, latitude: this.dataset.lat, longitude: this.dataset.lng };
-    doLoading();
-    getCrimeData(location);
-    getpoliceforce(location);
-    $("#city-name").text(location.city);
+  $(document).on("click", "ul a", function (ev) {
+    if (ev.target.tagName === "I") {
+      deleteHistoryItem(this.dataset.name);
+    } else {
+      let location = {name: this.dataset.name, latitude: this.dataset.lat, longitude: this.dataset.lng };
+      if (window.innerWidth <= 991) {
+        $('#collapse-history')[0].click();
+      }
+      clearData();
+      doLoading();
+      getCrimeData(location);
+      getpoliceforce(location);
+      $("#city-name").text(location.name);
+    }
   });
 
   // Gets user exact location if allowed and updates data
