@@ -16,7 +16,7 @@ init(); // Let's go!!!
 function init() {
   // Enables tooltips:
   const tooltipList = [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-  
+  doLoading();
   getIPLocation();
   addAllEventListeners();
   renderhistoryLi();
