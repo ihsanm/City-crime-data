@@ -2,6 +2,7 @@
 
 * Github URL: https://github.com/ihsanm/City-crime-data
 * Deployed Site: https://ihsanm.github.io/City-crime-data/
+* Presentation: [PDF File](./assets/presentation.pdf)
 
 ## Description
 
