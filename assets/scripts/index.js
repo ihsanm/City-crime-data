@@ -539,7 +539,7 @@ function addAllEventListeners() {
   });
 
   // Updates data on search history item click
-  $(document).on("click", "ul a", function (ev) {
+  $("#search-history-list").on("click", "a", function (ev) {
     if (ev.target.tagName === "I") {
       deleteHistoryItem(this.dataset.name);
     } else {
