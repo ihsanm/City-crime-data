@@ -352,7 +352,7 @@ function policeforce(policeforcetext){
             }
           }
         });
-        links.forEach(link => info.append($(`<br><a class="links" href="${link}" target="_blank">${link}</a>`)));
+        links.forEach(link => info.append($(`<br><a class="links" href="${link}" target="_blank">${link.replace(/(\/{1,2})/g, "$1<wbr>")}</a>`)));
         if (response.telephone) { info.append("<br>" + "<b>" + " Telephone : " + response.telephone + "<b>"); }
         fetchComplete();
     });
