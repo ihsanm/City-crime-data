@@ -274,7 +274,6 @@ function getIPLocation() {
   fetch("https://api.bigdatacloud.net/data/reverse-geocode-client").then(r => r.json()).then(data => {
     const location = { name: data.city, latitude: data.latitude, longitude: data.longitude };
     sunStatus(location); 
-    console.log(data);
     if (data.countryCode === "GB" && data.principalSubdivisionCode === "GB-ENG") {
       getCrimeData(location);
       getpoliceforce(location);
@@ -352,7 +351,7 @@ function policeforce(policeforcetext){
             }
           }
         });
-        links.forEach(link => info.append($(`<br><a class="links" href="${link}" target="_blank">${link}</a>`)));
+        links.forEach(link => info.append($(`<br><a class="links" href="${link}" target="_blank">${link.replace(/(\/{1,2})/g, "$1<wbr>")}</a>`)));
         if (response.telephone) { info.append("<br>" + "<b>" + " Telephone : " + response.telephone + "<b>"); }
         fetchComplete();
     });
@@ -401,7 +400,13 @@ function getCrimeData(location) {
     let url = `https://data.police.uk/api/crimes-street/all-crime?lat=${location.latitude}&lng=${location.longitude}`
     // neighbourhoodCrime(location); return;
     fetch(url)
-    .then(res => res.json())
+    .then(res => { 
+      if (res.ok) { 
+        return res.json(); 
+      } else {
+        throw new Error("Server error (" + res.status + ")\nPlease try again.");
+      }
+    })
     .then(data => {
         obj = {};
         data.forEach(item => {
@@ -415,6 +420,10 @@ function getCrimeData(location) {
         updateCharts();
         updateTable();
         fetchComplete();
+    })
+    .catch(e => {
+      fetchComplete();
+      showAlert(e.message);
     });
 }
 
@@ -447,7 +456,6 @@ function toggleTheme(theme) {
     document.body.classList.remove("dark");
     document.body.classList.add(theme);
     if (theme === "dark") {
-      // stylesheet.setAttribute("href", "https://bootswatch.com/5/cyborg/bootstrap.min.css");
       stylesheet.setAttribute("href", "https://bootswatch.com/5/superhero/bootstrap.min.css");
     } else {
       stylesheet.setAttribute("href", "");
@@ -479,7 +487,7 @@ function clearData() {
 function doLoading() {
   count = 0;
   $(".loading").removeClass("d-none");
-  setTimeout(() => $(".loading").addClass("d-none"), 2500);
+  setTimeout(() => $(".loading").addClass("d-none"), 5000);
 }
 
 // Hides loading modal when fetches complete
@@ -539,7 +547,7 @@ function addAllEventListeners() {
   });
 
   // Updates data on search history item click
-  $(document).on("click", "ul a", function (ev) {
+  $("#search-history-list").on("click", "a", function (ev) {
     if (ev.target.tagName === "I") {
       deleteHistoryItem(this.dataset.name);
     } else {
